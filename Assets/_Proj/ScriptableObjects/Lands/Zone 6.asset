@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e903179185702b4883488aad227c4eb, type: 3}
+  m_Name: Zone 6
+  m_EditorClassIdentifier: 
+  zoneID: 6
+  zoneName: "Khu \u0111\u1EA5t 6"
+  plots:
+  - {fileID: 11400000, guid: 0adb20378f50b414c94c56b7412f1f61, type: 2}
+  - {fileID: 11400000, guid: 9f98a1b645fe9e94b92be13f37633076, type: 2}
+  - {fileID: 11400000, guid: 66b39a753f93b2247b37b0e7ef93b1e4, type: 2}
+  - {fileID: 11400000, guid: ee516a45e552afa4d8d8479bf77dc105, type: 2}
+  - {fileID: 11400000, guid: e4183d90e6503c643a14cddd40864951, type: 2}
+  worldPosition: {x: 25, y: 0, z: 0}

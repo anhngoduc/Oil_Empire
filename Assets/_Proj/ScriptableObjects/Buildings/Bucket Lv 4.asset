@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4e477b9995973f48958060c0c773628, type: 3}
+  m_Name: Bucket Lv 4
+  m_EditorClassIdentifier: 
+  buildingID: 204
+  buildingName: Bucket Lv4
+  buildingType: 1
+  level: 4
+  price: 6000
+  productionRate: 0
+  capacity: 10000
+  prefab: {fileID: 7018485882319126001, guid: e7c9f7b00cb2403439d10239d5c9756d, type: 3}
+  icon: {fileID: 21300000, guid: b8467ea5fbaf9ba42908de6411bd443d, type: 3}
+  description: 
