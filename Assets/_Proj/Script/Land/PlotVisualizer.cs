@@ -2,11 +2,15 @@
 
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 namespace OilGame
 {
     public class PlotVisualizer : MonoBehaviour
     {
+        [Header("=== Nút mở khóa ===")]
+        [SerializeField] private GameObject unlockButtonPrefab;
+
         [Header("=== Tham chiếu ===")]
         [SerializeField] private ZoneManager zoneManager;
         [SerializeField] private GameObject plotCubePrefab;
@@ -45,26 +49,36 @@ namespace OilGame
 
         private void OnLandUnlocked(OnLandUnlocked evt)
         {
-            Debug.Log($"[PlotVisualizer] OnLandUnlocked: Zone={evt.zoneID}, Plot={evt.plotID}");
-
+            // Đổi màu Cube
             foreach (Transform child in transform)
             {
                 if (child.name == $"Plot_{evt.zoneID}_{evt.plotID}")
                 {
                     Renderer r = child.GetComponent<Renderer>();
                     if (r == null) r = child.GetComponentInChildren<Renderer>();
-                    if (r != null)
-                    {
-                        r.material = playerUnlockedMat;
-                        Debug.Log($"[PlotVisualizer] ĐÃ ĐỔI MÀU: {child.name}");
-                    }
-                    return;
+                    if (r != null) r.material = playerUnlockedMat;
+                    break;
+                }
+            }
+
+            foreach (Transform child in transform)
+            {
+                if (child.name == $"BTN_Unlock_{evt.zoneID}_{evt.plotID}")
+                {
+                    Destroy(child.gameObject);
+                    break;
                 }
             }
         }
 
         public void CreateAllPlotCubes()
         {
+            foreach (Transform child in transform)
+            {
+                if (child.name.StartsWith("BTN_Unlock_"))
+                    Destroy(child.gameObject);
+            }
+
             // Xóa hết Cube cũ
             foreach (Transform child in transform)
             {
@@ -112,6 +126,11 @@ namespace OilGame
                 Renderer r = cube.GetComponent<Renderer>();
                 if (r == null) r = cube.GetComponentInChildren<Renderer>();
                 if (r != null) r.material = mat;
+                // Chỉ tạo nút cho mảnh của Player, chưa mở khóa
+                if (zone.zoneID == playerDataService?.PlayerZoneID && !IsPlotUnlocked(zone.zoneID, plotID))
+                {
+                    CreateUnlockButton(centerWorld, zone.zoneID, plotID);
+                }
             }
         }
 
@@ -129,6 +148,36 @@ namespace OilGame
                 return botZoneMat;
 
             return emptyZoneMat;
+        }
+
+        private bool IsPlotUnlocked(int zoneID, int plotID)
+        {
+            return playerDataService != null && playerDataService.IsPlotUnlocked(zoneID, plotID);
+        }
+
+        private void CreateUnlockButton(Vector3 position, int zoneID, int plotID)
+        {
+            // Nhích lên 1 chút cho khỏi chìm
+            position.y = 0.15f;
+
+            GameObject btnGO = Instantiate(unlockButtonPrefab, position, Quaternion.identity, transform);
+            btnGO.name = $"BTN_Unlock_{zoneID}_{plotID}";
+
+            // Thêm script tự quay về camera
+            btnGO.AddComponent<Billboard>();
+
+            Button btn = btnGO.GetComponent<Button>();
+            if (btn != null)
+            {
+                btn.onClick.AddListener(() =>
+                {
+                    ILandService landService = ServiceLocator.Get<ILandService>();
+                    if (landService != null)
+                    {
+                        landService.UnlockPlot(zoneID, plotID);
+                    }
+                });
+            }
         }
     }
 }
