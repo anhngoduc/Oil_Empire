@@ -287,4 +287,10 @@ namespace OilGame
     {
         // Có thể mở rộng thêm thông tin nếu cần
     }
+
+    public struct OnActiveBucketChanged
+    {
+        public int? activeBucketID;
+        public int zoneID; // Zone của Bucket đang được bơm
+    }
 }

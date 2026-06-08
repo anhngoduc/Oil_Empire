@@ -18,16 +18,13 @@ namespace OilGame
         [SerializeField] private GameObject inventoryPanel;
         [SerializeField] private GameObject shopPanel;
         [SerializeField] private GameObject marketPanel;
-        [SerializeField] private GameObject landUnlockPanel;
 
         [Header("=== Nút đặt công trình ===")]
         [SerializeField] private Button placeButton;
 
         [Header("=== Nút đóng Panel ===")]
-        [SerializeField] private Button closeInventoryButton;
         [SerializeField] private Button closeShopButton;
         [SerializeField] private Button closeMarketButton;
-        [SerializeField] private Button closeLandUnlockButton;
 
         private IPlayerDataService playerDataService;
         private IMarketService marketService;
@@ -50,14 +47,10 @@ namespace OilGame
             EventBus.Subscribe<OnPlacementStarted>(OnPlacementStart);
             EventBus.Subscribe<OnPlacementEnded>(OnPlacementEnd);
 
-            if (closeInventoryButton != null)
-                closeInventoryButton.onClick.AddListener(() => { if (inventoryPanel != null) inventoryPanel.SetActive(false); });
             if (closeShopButton != null)
                 closeShopButton.onClick.AddListener(() => { if (shopPanel != null) shopPanel.SetActive(false); });
             if (closeMarketButton != null)
                 closeMarketButton.onClick.AddListener(() => { if (marketPanel != null) marketPanel.SetActive(false); });
-            if (closeLandUnlockButton != null)
-                closeLandUnlockButton.onClick.AddListener(() => { if (landUnlockPanel != null) landUnlockPanel.SetActive(false); });
 
             if (placeButton != null)
             {
@@ -72,7 +65,6 @@ namespace OilGame
             // Ẩn Shop, Market, LandUnlock - MỞ Inventory
             if (shopPanel != null) shopPanel.SetActive(false);
             if (marketPanel != null) marketPanel.SetActive(false);
-            if (landUnlockPanel != null) landUnlockPanel.SetActive(false);
             if (inventoryPanel != null) inventoryPanel.SetActive(true);
 
             Debug.Log("[HUDManager] Đã khởi tạo.");
@@ -105,7 +97,6 @@ namespace OilGame
         // === Mở/đóng panel (gọi từ TriggerOpenUI) ===
         public void ShowShop(bool show) { if (shopPanel != null) shopPanel.SetActive(show); }
         public void ShowMarket(bool show) { if (marketPanel != null) marketPanel.SetActive(show); }
-        public void ShowLandUnlock(bool show) { if (landUnlockPanel != null) landUnlockPanel.SetActive(show); }
 
         // === Nút Đặt ===
         private void OnPlaceClicked()

@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 2676420233775458028}
   - component: {fileID: 4124110222549779261}
   - component: {fileID: 2087104151618706078}
+  - component: {fileID: -9153598942324733326}
   m_Layer: 6
   m_Name: Drill_Lv3
   m_TagString: Untagged
@@ -231,6 +232,22 @@ MonoBehaviour:
   plotID: 0
   gridX: 0
   gridZ: 0
+--- !u!114 &-9153598942324733326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2814588551573494025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01b926609b8407a4a8b1d941a4969b55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pipeWidth: 0.1
+  flowSpeed: 2
+  pipeColor: {r: 0, g: 0, b: 0, a: 1}
+  flowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1001 &1324938831673338271
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -157,26 +157,37 @@ namespace OilGame
 
         private void CreateUnlockButton(Vector3 position, int zoneID, int plotID)
         {
-            // Nhích lên 1 chút cho khỏi chìm
             position.y = 0.15f;
 
             GameObject btnGO = Instantiate(unlockButtonPrefab, position, Quaternion.identity, transform);
             btnGO.name = $"BTN_Unlock_{zoneID}_{plotID}";
-
-            // Thêm script tự quay về camera
             btnGO.AddComponent<Billboard>();
 
+            // Tìm Button ở chính nó HOẶC ở con
             Button btn = btnGO.GetComponent<Button>();
+            if (btn == null) btn = btnGO.GetComponentInChildren<Button>();
+
             if (btn != null)
             {
                 btn.onClick.AddListener(() =>
                 {
+                    Debug.Log($"[BTN] BẤM NÚT MỞ KHÓA: Zone={zoneID}, Plot={plotID}");
+
                     ILandService landService = ServiceLocator.Get<ILandService>();
                     if (landService != null)
                     {
-                        landService.UnlockPlot(zoneID, plotID);
+                        bool result = landService.UnlockPlot(zoneID, plotID);
+                        Debug.Log($"[BTN] Kết quả: {result}");
+                    }
+                    else
+                    {
+                        Debug.LogError("[BTN] landService NULL!");
                     }
                 });
+            }
+            else
+            {
+                Debug.LogError($"[BTN] KHÔNG TÌM THẤY Button trong {btnGO.name}!");
             }
         }
     }
