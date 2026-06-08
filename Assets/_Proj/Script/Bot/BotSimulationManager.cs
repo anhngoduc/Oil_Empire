@@ -159,6 +159,7 @@ namespace OilGame
         /// <param name="zoneID">Zone gán cho bot.</param>
         private void CreateBotForZone(int zoneID)
         {
+            Debug.Log($"[BOT] CreateBotForZone: zoneID={zoneID}");
             if (landService == null || config == null || buildingDatabase == null) return;
 
             // Đánh dấu Zone thuộc về Bot
@@ -197,6 +198,16 @@ namespace OilGame
             if (verboseLogging)
                 Debug.Log($"[BotSimulationManager] Bot {bot.botName}: Mở {plotsToUnlock}/{totalPlots} mảnh.");
 
+            // Khởi tạo grid cho tất cả plot của Bot trước khi random công trình
+            IGridService gridService = ServiceLocator.Get<IGridService>();
+            if (gridService != null)
+            {
+                foreach (int plotID in bot.unlockedPlotIDs)
+                {
+                    // Gọi CanPlace để tự động khởi tạo grid
+                    gridService.CanPlace(zoneID, plotID, 0, 0);
+                }
+            }
             // === Random công trình ===
             RandomizeBotBuildings(bot);
 
@@ -232,6 +243,7 @@ namespace OilGame
             }
 
             SpawnBotBuildings(bot);
+            Debug.Log($"[BOT] Bot {bot.botID}: {bot.buildings.Count} công trình");
         }
 
         /// <summary>
@@ -251,30 +263,28 @@ namespace OilGame
             int cellsX = zoneData.cellsPerPlotX;
             int cellsZ = zoneData.cellsPerPlotZ;
 
-            // Tính tổng số ô khả dụng
             int totalAvailableCells = bot.unlockedPlotIDs.Count * cellsX * cellsZ;
 
-            // Số ô bot sử dụng
             int cellsToUse = Mathf.RoundToInt(totalAvailableCells * config.cellUsagePercentage / 100f);
             cellsToUse = Mathf.Max(cellsToUse, config.minDrillCount + config.minBucketCount);
 
-            // Quyết định số lượng Drill và Bucket
             int drillCount = Random.Range(config.minDrillCount, cellsToUse - config.minBucketCount + 1);
             int bucketCount = cellsToUse - drillCount;
 
-            // Tạo danh sách ô trống
+            // DEBUG
+            Debug.Log($"[BOT DEBUG] Bot {bot.botID} Zone {bot.zoneID}: plots={bot.unlockedPlotIDs.Count}, cellsX={cellsX}, cellsZ={cellsZ}, totalCells={totalAvailableCells}, cellsToUse={cellsToUse}, drill={drillCount}, bucket={bucketCount}");
+
             List<GridPosition> availableCells = GetAllAvailableCells(bot);
+            Debug.Log($"[BOT DEBUG] Bot {bot.botID}: availableCells={availableCells.Count}");
+
             ShuffleList(availableCells);
 
-            // Đặt Drill
             for (int i = 0; i < drillCount && availableCells.Count > 0; i++)
             {
                 GridPosition pos = availableCells[0];
                 availableCells.RemoveAt(0);
-
                 int level = config.GetRandomLevel(config.drillLevelWeights);
                 BuildingData drillData = GetBuildingDataByTypeAndLevel(BuildingType.Drill, level);
-
                 if (drillData != null)
                 {
                     bot.buildings.Add(new BotBuildingInfo
@@ -288,15 +298,12 @@ namespace OilGame
                 }
             }
 
-            // Đặt Bucket
             for (int i = 0; i < bucketCount && availableCells.Count > 0; i++)
             {
                 GridPosition pos = availableCells[0];
                 availableCells.RemoveAt(0);
-
                 int level = config.GetRandomLevel(config.bucketLevelWeights);
                 BuildingData bucketData = GetBuildingDataByTypeAndLevel(BuildingType.Bucket, level);
-
                 if (bucketData != null)
                 {
                     bot.buildings.Add(new BotBuildingInfo
@@ -309,6 +316,8 @@ namespace OilGame
                     });
                 }
             }
+
+            Debug.Log($"[BOT DEBUG] Bot {bot.botID}: KẾT QUẢ drill={bot.buildings.FindAll(b => GetBuildingDataByTypeAndLevel(BuildingType.Drill, 1) != null).Count}/{drillCount}, bucket={bot.buildings.FindAll(b => GetBuildingDataByTypeAndLevel(BuildingType.Bucket, 1) != null).Count}/{bucketCount}");
         }
 
         /// <summary>
@@ -320,6 +329,7 @@ namespace OilGame
             ZoneData zoneData = landService.GetZoneData(bot.zoneID);
             if (zoneData == null) return cells;
 
+            IGridService gridService = ServiceLocator.Get<IGridService>();
             int cellsX = zoneData.cellsPerPlotX;
             int cellsZ = zoneData.cellsPerPlotZ;
 
@@ -329,6 +339,8 @@ namespace OilGame
                 {
                     for (int z = 0; z < cellsZ; z++)
                     {
+
+                        // Kiểm tra không trùng với công trình hiện có của bot
                         bool occupied = false;
                         foreach (var building in bot.buildings)
                         {
@@ -474,8 +486,30 @@ namespace OilGame
                     {
                         bot.totalOilInBuckets += building.currentOil;
                     }
+
                 }
+
             }
+            // === Gửi event ống dầu (gộp tất cả Bot vào 1 event) ===
+            var pipeDict = new Dictionary<int, int?>();
+            foreach (BotData b in allBots)
+            {
+                int? activeID = null;
+                foreach (var binfo in b.buildings)
+                {
+                    BuildingData bdata = buildingDatabase.GetByID(binfo.buildingDataID);
+                    if (bdata != null && bdata.buildingType == BuildingType.Bucket)
+                    {
+                        if (binfo.currentOil < bdata.capacity)
+                        {
+                            activeID = GetBotBucketUniqueID(b, binfo);
+                            break;
+                        }
+                    }
+                }
+                pipeDict[b.zoneID] = activeID;
+            }
+            EventBus.Publish(new OnActiveBucketChanged { zoneActiveBuckets = pipeDict });
         }
 
         #endregion
@@ -727,7 +761,7 @@ namespace OilGame
 
             Transform found = botBuildingsParent.Find(searchName);
             if (found != null)
-            { 
+            {
                 Building building = found.GetComponent<Building>();
                 if (building != null && building.RuntimeData != null)
                 {
@@ -742,6 +776,18 @@ namespace OilGame
             if (botBuildingsParent == null) return null;
             string searchName = $"B{botID}_{building.plotID}_{building.gridX}_{building.gridZ}";
             return botBuildingsParent.Find(searchName);
+        }
+        private int? GetBotBucketUniqueID(BotData bot, BotBuildingInfo buildingInfo)
+        {
+            if (botBuildingsParent == null) return null;
+            string searchName = $"B{bot.botID}_{buildingInfo.plotID}_{buildingInfo.gridX}_{buildingInfo.gridZ}";
+            Transform found = botBuildingsParent.Find(searchName);
+            if (found != null)
+            {
+                Building building = found.GetComponent<Building>();
+                if (building != null) return building.UniqueID;
+            }
+            return null;
         }
     }
 }

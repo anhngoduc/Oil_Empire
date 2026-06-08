@@ -46,46 +46,54 @@ namespace OilGame
 
         private void OnActiveBucketChanged(OnActiveBucketChanged evt)
         {
-            // Chỉ nối nếu cùng Zone với Drill này
-            if (myBuilding != null && evt.zoneID != myBuilding.ZoneID)
-            {
-                lineRenderer.enabled = false;
-                targetBucket = null;
-                return;
-            }
+            if (myBuilding == null) return;
 
-            if (evt.activeBucketID == null || evt.activeBucketID <= 0)
+            if (evt.zoneActiveBuckets != null && evt.zoneActiveBuckets.TryGetValue(myBuilding.ZoneID, out int? bucketID))
             {
-                lineRenderer.enabled = false;
-                targetBucket = null;
-                return;
+                if (bucketID == null || bucketID == 0)
+                {
+                    lineRenderer.enabled = false;
+                    targetBucket = null;
+                    return;
+                }
+                activeBucketID = bucketID.Value;
+                UpdateTarget();
             }
-
-            activeBucketID = evt.activeBucketID.Value;
-            UpdateTarget();
         }
 
         private void UpdateTarget()
         {
-            if (activeBucketID <= 0)
+            if (activeBucketID == 0)
             {
                 lineRenderer.enabled = false;
                 targetBucket = null;
                 return;
             }
 
+            // Thử tìm trong BuildingService (building player)
             IBuildingService bs = ServiceLocator.Get<IBuildingService>();
             Building bucket = bs?.GetBuildingByID(activeBucketID);
             if (bucket != null)
             {
                 targetBucket = bucket.transform;
                 lineRenderer.enabled = true;
+                return;
             }
-            else
+
+            // Tìm building bot (fakeID âm, không có trong BuildingService)
+            Building[] allBuildings = FindObjectsOfType<Building>();
+            foreach (var b in allBuildings)
             {
-                lineRenderer.enabled = false;
-                targetBucket = null;
+                if (b.UniqueID == activeBucketID)
+                {
+                    targetBucket = b.transform;
+                    lineRenderer.enabled = true;
+                    return;
+                }
             }
+
+            lineRenderer.enabled = false;
+            targetBucket = null;
         }
 
         private void Update()

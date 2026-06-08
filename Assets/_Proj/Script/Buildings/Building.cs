@@ -67,12 +67,10 @@ namespace OilGame
             {
                 if (buildingData == null)
                 {
-                    // Lấy từ BuildingDatabase qua ServiceLocator
-                    BuildingDatabase database = ServiceLocator.Get<BuildingDatabase>();
-                    if (database != null)
-                    {
-                        buildingData = database.GetByID(buildingDataID);
-                    }
+                    // Lấy từ GameConfig thay vì ServiceLocator
+                    GameConfig config = FindObjectOfType<GameConfig>();
+                    if (config != null && config.buildingDatabase != null)
+                        buildingData = config.buildingDatabase.GetByID(buildingDataID);
                 }
                 return buildingData;
             }

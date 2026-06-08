@@ -1,5 +1,6 @@
 ﻿// Assets/_Project/Scripts/Core/GameEvents.cs
 
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace OilGame
@@ -290,7 +291,6 @@ namespace OilGame
 
     public struct OnActiveBucketChanged
     {
-        public int? activeBucketID;
-        public int zoneID; // Zone của Bucket đang được bơm
+        public Dictionary<int, int?> zoneActiveBuckets; // zoneID → bucketID (null = không có)
     }
 }

@@ -29,17 +29,27 @@ namespace OilGame
             yield return new WaitForSeconds(1f);
 
             if (zoneManager == null) zoneManager = FindObjectOfType<ZoneManager>();
+
+            // Retry nếu ZoneManager chưa sẵn sàng
+            int retry = 0;
+            while ((zoneManager == null || zoneManager.AllZones.Count == 0) && retry < 20)
+            {
+                yield return new WaitForSeconds(0.3f);
+                if (zoneManager == null) zoneManager = FindObjectOfType<ZoneManager>();
+                if (zoneManager != null && zoneManager.AllZones.Count == 0)
+                    zoneManager.Initialize();
+                retry++;
+            }
+
             playerDataService = ServiceLocator.Get<IPlayerDataService>();
 
             GameConfig config = FindObjectOfType<GameConfig>();
             cellSize = config != null ? config.cellSize : 1f;
 
-            if (zoneManager != null && zoneManager.AllZones.Count == 0)
-                zoneManager.Initialize();
-
             CreateAllPlotCubes();
 
             EventBus.Subscribe<OnLandUnlocked>(OnLandUnlocked);
+            Debug.Log("[PlotVisualizer] ĐÃ ĐĂNG KÝ OnLandUnlocked");
         }
 
         private void OnDestroy()

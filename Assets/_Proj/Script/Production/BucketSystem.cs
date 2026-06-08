@@ -152,6 +152,7 @@ namespace OilGame
                 productionService.PauseProduction();
                 Debug.Log("[BucketSystem] Tất cả bucket đã đầy! Dầu dư bị mất: " + remainingOil);
             }
+            var dict = new Dictionary<int, int?>();
             int? activeBucket = null;
             foreach (Building bucket in buckets)
             {
@@ -161,14 +162,9 @@ namespace OilGame
                     break;
                 }
             }
-            // Lấy ZoneID từ Bucket đầu tiên
-            int bucketZoneID = buckets.Count > 0 ? buckets[0].ZoneID : -1;
-
-            EventBus.Publish(new OnActiveBucketChanged
-            {
-                activeBucketID = activeBucket,
-                zoneID = bucketZoneID
-            });
+            int playerZoneID = buckets.Count > 0 ? buckets[0].ZoneID : -1;
+            dict[playerZoneID] = activeBucket;
+            EventBus.Publish(new OnActiveBucketChanged { zoneActiveBuckets = dict });
         }
 
         #endregion
