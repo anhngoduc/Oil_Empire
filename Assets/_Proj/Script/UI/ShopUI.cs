@@ -111,7 +111,7 @@ namespace OilGame
         /// <summary>
         /// Lọc shop theo loại công trình.
         /// </summary>
-        private void FilterByType(BuildingType? type)
+        public void FilterByType(BuildingType? type)
         {
             currentFilter = type;
             RefreshShop();

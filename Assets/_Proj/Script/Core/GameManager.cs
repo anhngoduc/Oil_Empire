@@ -247,6 +247,8 @@ namespace OilGame
             saveLoadManager.StartAutoSave();
 
             Debug.Log($"[GameManager] New Game: Player Zone={playerZoneID}, Drill Lv1 + Bucket Lv1 đã được cấp.");
+
+            EventBus.Publish(new OnGameReady());
         }
 
         #endregion
@@ -302,6 +304,7 @@ namespace OilGame
             // 8. Bắt đầu Auto Save
             saveLoadManager.StartAutoSave();
 
+            EventBus.Publish(new OnGameReady());
         }
 
         /// <summary>

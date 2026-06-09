@@ -139,6 +139,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f4af28d59db8084e9c986f313da9799, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collectFXPrefab: {fileID: 364579647055016899, guid: f0a4fe7ef8daa784db2271a850f6e167,
+    type: 3}
+  punchScale: 0.1
+  punchDuration: 0.5
 --- !u!1 &8873430398772997509
 GameObject:
   m_ObjectHideFlags: 0

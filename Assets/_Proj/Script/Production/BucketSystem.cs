@@ -189,7 +189,6 @@ namespace OilGame
             Building bucket = buildingService.GetBuildingByID(bucketUniqueID);
             if (bucket == null)
             {
-                Debug.LogWarning($"[BucketSystem] Không tìm thấy Bucket ID={bucketUniqueID}!");
                 return 0f;
             }
 

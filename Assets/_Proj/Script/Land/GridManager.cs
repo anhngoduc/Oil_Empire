@@ -109,10 +109,8 @@ namespace OilGame
 
             if (!gridData.TryGetValue(key, out GridCell[,] grid))
             {
-                Debug.Log($"[CanPlace] Grid {key} chưa có, đang khởi tạo...");
                 InitializeGridForPlot(zoneID, plotID);
                 bool hasGrid = gridData.TryGetValue(key, out grid);
-                Debug.Log($"[CanPlace] Khởi tạo xong, có grid={hasGrid}");
             }
 
             if (grid == null)

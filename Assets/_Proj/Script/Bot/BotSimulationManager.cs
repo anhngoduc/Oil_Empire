@@ -272,10 +272,8 @@ namespace OilGame
             int bucketCount = cellsToUse - drillCount;
 
             // DEBUG
-            Debug.Log($"[BOT DEBUG] Bot {bot.botID} Zone {bot.zoneID}: plots={bot.unlockedPlotIDs.Count}, cellsX={cellsX}, cellsZ={cellsZ}, totalCells={totalAvailableCells}, cellsToUse={cellsToUse}, drill={drillCount}, bucket={bucketCount}");
 
             List<GridPosition> availableCells = GetAllAvailableCells(bot);
-            Debug.Log($"[BOT DEBUG] Bot {bot.botID}: availableCells={availableCells.Count}");
 
             ShuffleList(availableCells);
 

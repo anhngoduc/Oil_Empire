@@ -10,7 +10,7 @@ namespace OilGame
     /// </summary>
     public class TriggerOpenUI : MonoBehaviour
     {
-        public enum UIType { Shop, Market }
+        public enum UIType { ShopDrill, ShopBucket, Market }
 
         [Header("=== Loại UI ===")]
         [SerializeField] private UIType uiType;
@@ -38,8 +38,15 @@ namespace OilGame
 
             switch (uiType)
             {
-                case UIType.Shop: hudManager.ShowShop(true); break;
-                case UIType.Market: hudManager.ShowMarket(true); break;
+                case UIType.ShopDrill:
+                    hudManager.ShowShop(true, BuildingType.Drill);
+                    break;
+                case UIType.ShopBucket:
+                    hudManager.ShowShop(true, BuildingType.Bucket);
+                    break;
+                case UIType.Market: 
+                    hudManager.ShowMarket(true); 
+                    break;
             }
         }
 
@@ -49,7 +56,10 @@ namespace OilGame
 
             switch (uiType)
             {
-                case UIType.Shop: hudManager.ShowShop(false); break;
+                case UIType.ShopDrill:
+                case UIType.ShopBucket:
+                    hudManager.ShowShop(false);
+                    break;
                 case UIType.Market: hudManager.ShowMarket(false); break;
             }
         }

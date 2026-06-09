@@ -293,4 +293,6 @@ namespace OilGame
     {
         public Dictionary<int, int?> zoneActiveBuckets; // zoneID → bucketID (null = không có)
     }
+
+    public struct OnGameReady { }
 }

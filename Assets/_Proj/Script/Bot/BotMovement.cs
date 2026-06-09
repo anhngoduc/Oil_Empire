@@ -5,9 +5,6 @@ using System.Collections.Generic;
 
 namespace OilGame
 {
-    /// <summary>
-    /// BotMovement - Gắn vào Prefab Bot. Tự động di chuyển trong Zone và thu dầu khi Bucket đầy.
-    /// </summary>
     public class BotMovement : MonoBehaviour
     {
         [Header("=== Di chuyển ===")]
@@ -15,61 +12,69 @@ namespace OilGame
         [SerializeField] private float turnSpeed = 5f;
         [SerializeField] private float stoppingDistance = 1.5f;
 
+        [Header("=== Nhảy ===")]
+        [SerializeField] private float jumpForce = 5f;
+        [SerializeField] private float rayDistance = 1f;
+        [SerializeField] private float rayHeight = 0.5f;
+        [SerializeField] private int maxJump = 1;
+
         [Header("=== Nghỉ ===")]
         [SerializeField] private float minRestTime = 1f;
         [SerializeField] private float maxRestTime = 3f;
 
-        [Header("=== Zone ===")]
-        [SerializeField] private int botZoneID = -1;
+        [Header("=== Thu dầu ===")]
+        [SerializeField] private float collectCooldown = 5f;
 
         [Header("=== Animation ===")]
         [SerializeField] private Animator anim;
+
         public System.Action<BotBuildingInfo> OnCollectOil;
+
+        private Rigidbody rb;
+        private ZoneManager zoneManager;
+        private int botZoneID = -1;
+        private Vector3 zoneMin, zoneMax;
+        private float zoneMargin = 0.5f;
 
         // Trạng thái
         private enum BotState { Wandering, MovingToBucket, Resting }
         private BotState currentState = BotState.Wandering;
-
-        // Di chuyển
-        private Rigidbody rb;
         private Vector3 targetPosition;
         private float restTimer;
 
         // Bucket
-        private List<Transform> fullBuckets = new List<Transform>();
-        private Dictionary<Transform, BotBuildingInfo> currentBucketInfoMap = new Dictionary<Transform, BotBuildingInfo>();
-        private Transform currentBucketTarget;
+        private float lastCollectTime = -999f;
+        private bool pendingCollect = false;
+        private BotBuildingInfo pendingBucketInfo;
+        private Transform pendingBucketTransform;
 
-        // Zone giới hạn
-        private ZoneManager zoneManager;
-        private Vector3 zoneMin;
-        private Vector3 zoneMax;
-        private float zoneMargin = 0.5f;
+        // Nhảy
+        private int jumpCount = 0;
+        private bool isGrounded = false;
 
         private void Start()
         {
             rb = GetComponent<Rigidbody>();
             if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
-
             rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             rb.useGravity = true;
 
             zoneManager = FindObjectOfType<ZoneManager>();
-
-            if (botZoneID < 0)
-            {
-                // Tự tìm Zone từ BotData
-                BotData botData = GetComponent<BotData>();
-                if (botData != null) botZoneID = botData.zoneID;
-            }
-
+            if (botZoneID < 0) TryGetZoneFromData();
             CalculateZoneBounds();
             PickNewWanderTarget();
-            Debug.Log($"[BotMovement] Bot {botZoneID} STARTED - zoneMin={zoneMin}, zoneMax={zoneMax}");
+        }
+
+        private void TryGetZoneFromData()
+        {
+            BotData data = GetComponent<BotData>();
+            if (data != null) botZoneID = data.zoneID;
         }
 
         private void Update()
         {
+            CheckObstacle();
+
             switch (currentState)
             {
                 case BotState.Wandering:
@@ -90,13 +95,9 @@ namespace OilGame
             {
                 float dist = DistanceXZ(transform.position, targetPosition);
                 if (dist > stoppingDistance)
-                {
                     MoveTowardsTarget();
-                }
                 else
-                {
                     rb.velocity = Vector3.zero;
-                }
             }
             else
             {
@@ -105,68 +106,52 @@ namespace OilGame
         }
 
         // ==================== WANDERING ====================
-
         private void WanderUpdate()
         {
             float dist = DistanceXZ(transform.position, targetPosition);
             if (dist <= stoppingDistance)
             {
-                rb.velocity = Vector3.zero; 
+                rb.velocity = Vector3.zero;
                 StartResting();
             }
         }
+
         private void PickNewWanderTarget()
         {
             if (zoneMin == zoneMax) return;
-
             float x = Random.Range(zoneMin.x + zoneMargin, zoneMax.x - zoneMargin);
             float z = Random.Range(zoneMin.z + zoneMargin, zoneMax.z - zoneMargin);
             targetPosition = new Vector3(x, transform.position.y, z);
         }
 
         // ==================== MOVE TO BUCKET ====================
-
         private void MoveToBucketUpdate()
         {
-            if (currentBucketTarget == null)
+            if (pendingBucketTransform == null)
             {
-                rb.velocity = Vector3.zero; // ✅ dừng ngay
-                fullBuckets.Remove(null);
+                pendingCollect = false;
                 currentState = BotState.Wandering;
                 PickNewWanderTarget();
                 return;
             }
-
-            targetPosition = currentBucketTarget.position;
+            targetPosition = pendingBucketTransform.position;
         }
 
-        private Transform GetNearestFullBucket()
+        public void OnBucketFull(Transform bucketTransform, BotBuildingInfo bucketInfo)
         {
-            fullBuckets.RemoveAll(b => b == null);
+            if (Time.time - lastCollectTime < collectCooldown) return;
+            if (pendingCollect) return;
 
-            Transform nearest = null;
-            float minDist = float.MaxValue;
-
-            foreach (var bucket in fullBuckets)
-            {
-                float d = Vector3.Distance(transform.position, bucket.position);
-                if (d < minDist)
-                {
-                    minDist = d;
-                    nearest = bucket;
-                }
-            }
-            return nearest;
+            pendingBucketInfo = bucketInfo;
+            pendingBucketTransform = bucketTransform;
+            pendingCollect = true;
         }
 
         // ==================== RESTING ====================
-
         private void StartResting()
         {
             currentState = BotState.Resting;
             restTimer = Random.Range(minRestTime, maxRestTime);
-
-            // ANIM: đứng
             if (anim != null) anim.SetBool("Run", false);
         }
 
@@ -175,12 +160,8 @@ namespace OilGame
             restTimer -= Time.deltaTime;
             if (restTimer <= 0f)
             {
-                // ✅ Ưu tiên đi lấy bucket trước khi wander
-                currentBucketTarget = GetNearestFullBucket();
-                if (currentBucketTarget != null)
-                {
+                if (pendingCollect && pendingBucketTransform != null)
                     currentState = BotState.MovingToBucket;
-                }
                 else
                 {
                     currentState = BotState.Wandering;
@@ -189,117 +170,116 @@ namespace OilGame
             }
         }
 
-        // ==================== DI CHUYỂN ====================
+        // ==================== TRIGGER ====================
+        private void OnTriggerEnter(Collider other)
+        {
+            if (pendingCollect && pendingBucketTransform != null && other.transform == pendingBucketTransform)
+            {
+                OnCollectOil?.Invoke(pendingBucketInfo);
+                lastCollectTime = Time.time;
+                pendingCollect = false;
+                pendingBucketInfo = null;
+                pendingBucketTransform = null;
+                StartResting();
+            }
+        }
 
+        private void OnTriggerStay(Collider other)
+        {
+            if (other.transform.IsChildOf(transform) || other.gameObject == gameObject) return;
+            isGrounded = true;
+            jumpCount = 0;
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.transform.IsChildOf(transform) || other.gameObject == gameObject) return;
+            isGrounded = false;
+            if (jumpCount == 0) jumpCount = 1;
+        }
+
+        // ==================== NHẢY ====================
+        private void CheckObstacle()
+        {
+            if (currentState != BotState.Wandering && currentState != BotState.MovingToBucket) return;
+            if (rb.velocity.magnitude < 0.1f) return;
+            if (jumpCount >= maxJump) return;
+
+            Vector3 rayOrigin = transform.position + Vector3.up * rayHeight;
+            Ray ray = new Ray(rayOrigin, transform.forward);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
+            {
+                if (!hit.collider.isTrigger)
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+                    jumpCount++;
+                    if (anim != null) anim.SetTrigger("Jump");
+                }
+            }
+        }
+
+        // ==================== DI CHUYỂN ====================
         private void MoveTowardsTarget()
         {
             Vector3 dir = (targetPosition - transform.position);
             dir.y = 0;
             dir.Normalize();
-
             rb.velocity = new Vector3(dir.x * moveSpeed, rb.velocity.y, dir.z * moveSpeed);
-
             Quaternion targetRot = Quaternion.LookRotation(dir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, turnSpeed * Time.fixedDeltaTime);
-
             if (anim != null) anim.SetBool("Run", true);
         }
 
-        // ==================== ZONE GIỚI HẠN ====================
+        // ==================== ZONE ====================
         public void SetZoneID(int zoneID)
         {
-            this.botZoneID = zoneID;
-
-            if (zoneManager == null)
-                zoneManager = FindObjectOfType<ZoneManager>();
-
+            botZoneID = zoneID;
+            if (zoneManager == null) zoneManager = FindObjectOfType<ZoneManager>();
             CalculateZoneBounds();
-
             PickNewWanderTarget();
         }
+
         private void CalculateZoneBounds()
         {
             if (zoneManager == null) return;
-
-            Transform zonePoint = zoneManager.GetZoneTransform(botZoneID);
+            Transform t = zoneManager.GetZoneTransform(botZoneID);
             ZoneData zd = zoneManager.GetZone(botZoneID)?.zoneData;
-            if (zonePoint == null || zd == null) return;
+            if (t == null || zd == null) return;
 
-            float totalW = zd.TotalCellsX * 1f;
-            float totalH = zd.TotalCellsZ * 1f;
+            float w = zd.TotalCellsX * 1f;
+            float h = zd.TotalCellsZ * 1f;
+            Vector3 p = t.position;
+            Vector3 r = t.right;
+            Vector3 f = t.forward;
 
-            Vector3 corner1 = zonePoint.position;
-            Vector3 corner2 = zonePoint.position + zonePoint.right * totalW;
-            Vector3 corner3 = zonePoint.position + zonePoint.forward * totalH;
-            Vector3 corner4 = zonePoint.position + zonePoint.right * totalW + zonePoint.forward * totalH;
+            Vector3 c1 = p;
+            Vector3 c2 = p + r * w;
+            Vector3 c3 = p + f * h;
+            Vector3 c4 = p + r * w + f * h;
 
-            zoneMin = new Vector3(
-                Mathf.Min(corner1.x, corner2.x, corner3.x, corner4.x),
-                corner1.y,
-                Mathf.Min(corner1.z, corner2.z, corner3.z, corner4.z)
-            );
-            zoneMax = new Vector3(
-                Mathf.Max(corner1.x, corner2.x, corner3.x, corner4.x),
-                corner1.y,
-                Mathf.Max(corner1.z, corner2.z, corner3.z, corner4.z)
-            );
+            zoneMin = new Vector3(Mathf.Min(c1.x, c2.x, c3.x, c4.x), p.y, Mathf.Min(c1.z, c2.z, c3.z, c4.z));
+            zoneMax = new Vector3(Mathf.Max(c1.x, c2.x, c3.x, c4.x), p.y, Mathf.Max(c1.z, c2.z, c3.z, c4.z));
         }
 
-        // ==================== BUCKET ĐẦY ====================
-
-        /// <summary>
-        /// Gọi từ BotSimulationManager khi Bucket của Bot này đầy.
-        /// </summary>
-        // ✅ Thêm tham số BotBuildingInfo
-        public void OnBucketFull(Transform bucketTransform, BotBuildingInfo info)
-        {
-            if (!fullBuckets.Contains(bucketTransform))
-            {
-                fullBuckets.Add(bucketTransform);
-                currentBucketInfoMap[bucketTransform] = info; // ✅ lưu map
-            }
-
-            if (currentState == BotState.Wandering)
-            {
-                currentBucketTarget = GetNearestFullBucket();
-                if (currentBucketTarget != null)
-                    currentState = BotState.MovingToBucket;
-            }
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (currentBucketTarget != null && other.transform == currentBucketTarget)
-            {
-                // ✅ Chạm trigger bucket → thu dầu
-                if (currentBucketInfoMap.ContainsKey(currentBucketTarget))
-                    OnCollectOil?.Invoke(currentBucketInfoMap[currentBucketTarget]);
-
-                currentBucketInfoMap.Remove(currentBucketTarget);
-                fullBuckets.Remove(currentBucketTarget);
-                currentBucketTarget = null;
-                StartResting();
-            }
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (zoneManager == null) return;
-
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCube(
-                (zoneMin + zoneMax) / 2f,
-                new Vector3(zoneMax.x - zoneMin.x, 1f, zoneMax.z - zoneMin.z)
-            );
-
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(targetPosition, 0.3f);
-        }
         private float DistanceXZ(Vector3 a, Vector3 b)
         {
             float dx = a.x - b.x;
             float dz = a.z - b.z;
             return Mathf.Sqrt(dx * dx + dz * dz);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireCube((zoneMin + zoneMax) / 2f, new Vector3(zoneMax.x - zoneMin.x, 1f, zoneMax.z - zoneMin.z));
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(targetPosition, 0.3f);
+
+            // Vẽ ray obstacle
+            Gizmos.color = Color.red;
+            Vector3 rayOrigin = transform.position + Vector3.up * rayHeight;
+            Gizmos.DrawRay(rayOrigin, transform.forward * rayDistance);
         }
     }
 }

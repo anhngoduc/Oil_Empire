@@ -48,9 +48,9 @@ namespace OilGame
             EventBus.Subscribe<OnPlacementEnded>(OnPlacementEnd);
 
             if (closeShopButton != null)
-                closeShopButton.onClick.AddListener(() => { if (shopPanel != null) shopPanel.SetActive(false); });
+                closeShopButton.onClick.AddListener(() => ShowShop(false));
             if (closeMarketButton != null)
-                closeMarketButton.onClick.AddListener(() => { if (marketPanel != null) marketPanel.SetActive(false); });
+                closeMarketButton.onClick.AddListener(() => ShowMarket(false));
 
             if (placeButton != null)
             {
@@ -62,7 +62,6 @@ namespace OilGame
             UpdateOilDisplay(playerDataService?.OilHeld ?? 0);
             UpdateOilPriceDisplay(marketService?.CurrentOilPrice ?? 0f);
 
-            // Ẩn Shop, Market, LandUnlock - MỞ Inventory
             if (shopPanel != null) shopPanel.SetActive(false);
             if (marketPanel != null) marketPanel.SetActive(false);
             if (inventoryPanel != null) inventoryPanel.SetActive(true);
@@ -94,9 +93,51 @@ namespace OilGame
         private void UpdateProductionRateDisplay(float rate) { if (productionRateText != null) productionRateText.text = $"{rate:F1} Oil/sec"; }
         private void UpdateOilPriceDisplay(float price) { if (oilPriceText != null) oilPriceText.text = $"Giá: ${price:F2}/Oil"; }
 
-        // === Mở/đóng panel (gọi từ TriggerOpenUI) ===
-        public void ShowShop(bool show) { if (shopPanel != null) shopPanel.SetActive(show); }
-        public void ShowMarket(bool show) { if (marketPanel != null) marketPanel.SetActive(show); }
+        // === Mở/đóng panel ===
+        public void ShowShop(bool show, BuildingType? filterType = null)
+        {
+            if (shopPanel == null) return;
+
+            if (show)
+            {
+                CameraZoom.Instance?.ZoomIn();
+                if (filterType.HasValue)
+                {
+                    ShopUI shopUI = shopPanel.GetComponent<ShopUI>();
+                    if (shopUI != null) shopUI.FilterByType(filterType.Value);
+                }
+                shopPanel.SetActive(true);
+                shopPanel.GetComponent<IUIAnimation>()?.PlayShow();
+            }
+            else
+            {
+                CameraZoom.Instance?.ZoomOut();
+                shopPanel.GetComponent<IUIAnimation>()?.PlayHide(() =>
+                {
+                    shopPanel.SetActive(false);
+                });
+            }
+        }
+
+        public void ShowMarket(bool show)
+        {
+            if (marketPanel == null) return;
+
+            if (show)
+            {
+                CameraZoom.Instance?.ZoomIn();
+                marketPanel.SetActive(true);
+                marketPanel.GetComponent<IUIAnimation>()?.PlayShow();
+            }
+            else
+            {
+                CameraZoom.Instance?.ZoomOut();
+                marketPanel.GetComponent<IUIAnimation>()?.PlayHide(() =>
+                {
+                    marketPanel.SetActive(false);
+                });
+            }
+        }
 
         // === Nút Đặt ===
         private void OnPlaceClicked()
