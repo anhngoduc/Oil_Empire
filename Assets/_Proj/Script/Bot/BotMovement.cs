@@ -248,8 +248,9 @@ namespace OilGame
             if (t == null || zd == null) return;
 
             float w = zd.TotalCellsX * 1f;
+            float startX = -w / 2f;
             float h = zd.TotalCellsZ * 1f;
-            Vector3 p = t.position;
+            Vector3 p = t.position + t.right * startX;
             Vector3 r = t.right;
             Vector3 f = t.forward;
 

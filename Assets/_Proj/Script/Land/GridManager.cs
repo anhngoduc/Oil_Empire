@@ -58,11 +58,14 @@ namespace OilGame
             ZoneData zd = zoneManager.GetZone(zoneID)?.zoneData;
             if (t == null || zd == null) return Vector3.zero;
 
+            float totalW = zd.TotalCellsX * cellSize;
+            float startX = -totalW / 2f;
+
             int plotIndex = plotID - 1;
             int col = plotIndex % zd.columns;
             int row = plotIndex / zd.columns;
 
-            float offsetX = col * zd.cellsPerPlotX * cellSize + gridX * cellSize + cellSize * 0.5f;
+            float offsetX = startX + col * zd.cellsPerPlotX * cellSize + gridX * cellSize + cellSize * 0.5f;
             float offsetZ = row * zd.cellsPerPlotZ * cellSize + gridZ * cellSize + cellSize * 0.5f;
 
             return t.position + t.right * offsetX + t.forward * offsetZ;
@@ -77,12 +80,14 @@ namespace OilGame
                 Transform t = zone.zoneTransform;
                 ZoneData zd = zone.zoneData;
 
-                Vector3 localPos = worldPos - t.position;
-                float localX = Vector3.Dot(localPos, t.right);
-                float localZ = Vector3.Dot(localPos, t.forward);
-
+                // TÍNH startX TRƯỚC KHI DÙNG
                 float totalW = zd.TotalCellsX * cellSize;
                 float totalH = zd.TotalCellsZ * cellSize;
+                float startX = -totalW / 2f;
+
+                Vector3 localPos = worldPos - t.position;
+                float localX = Vector3.Dot(localPos, t.right) - startX;
+                float localZ = Vector3.Dot(localPos, t.forward);
 
                 if (localX >= 0 && localX <= totalW && localZ >= 0 && localZ <= totalH)
                 {
@@ -167,6 +172,9 @@ namespace OilGame
                 Transform t = zone.zoneTransform;
                 bool isPlayerZone = zone.zoneID == playerZoneID;
 
+                float totalW = zd.TotalCellsX * cs;
+                float startX = -totalW / 2f;
+
                 for (int row = 0; row < zd.rows; row++)
                 {
                     for (int col = 0; col < zd.columns; col++)
@@ -174,7 +182,6 @@ namespace OilGame
                         int plotIndex = row * zd.columns + col;
                         int plotID = plotIndex + 1;
 
-                        // Kiểm tra mảnh đã mở khóa chưa
                         bool isUnlocked = false;
                         if (isPlayerZone && playerData != null)
                             isUnlocked = playerData.IsPlotUnlocked(zone.zoneID, plotID);
@@ -185,17 +192,16 @@ namespace OilGame
                         {
                             for (int z = 0; z < zd.cellsPerPlotZ; z++)
                             {
-                                float wx = col * zd.cellsPerPlotX * cs + x * cs + cs * 0.5f;
+                                float wx = startX + col * zd.cellsPerPlotX * cs + x * cs + cs * 0.5f;
                                 float wz = row * zd.cellsPerPlotZ * cs + z * cs + cs * 0.5f;
                                 Vector3 worldPos = t.position + t.right * wx + t.forward * wz;
 
-                                // Chọn màu
                                 if (isPlayerZone && isUnlocked)
-                                    Gizmos.color = Color.green; // Của tôi, đã mở
+                                    Gizmos.color = Color.green;
                                 else if (isPlayerZone && !isUnlocked)
-                                    Gizmos.color = Color.yellow; // Của tôi, chưa mở
+                                    Gizmos.color = Color.yellow;
                                 else
-                                    Gizmos.color = Color.red; // Của bot/khác
+                                    Gizmos.color = Color.red;
 
                                 Gizmos.DrawSphere(worldPos, cs * 0.15f);
                             }

@@ -107,13 +107,16 @@ namespace OilGame
             float plotWidth = zd.cellsPerPlotX * cellSize;
             float plotHeight = zd.cellsPerPlotZ * cellSize;
 
+            float totalW = zd.columns * zd.cellsPerPlotX * cellSize;
+            float startX = -totalW / 2f;
+
             for (int i = 0; i < totalPlots; i++)
             {
                 int plotID = i + 1;
                 int col = i % zd.columns;
                 int row = i / zd.columns;
 
-                float cornerX = col * plotWidth;
+                float cornerX = startX + col * plotWidth;
                 float cornerZ = row * plotHeight;
 
                 Vector3 centerLocal = zoneTransform.right * (cornerX + plotWidth / 2f)

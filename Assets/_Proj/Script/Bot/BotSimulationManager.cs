@@ -702,9 +702,10 @@ namespace OilGame
             if (t == null || zd == null) return Vector3.zero;
 
             float totalW = zd.TotalCellsX * 1f;
+            float startX = -totalW / 2f;
             float totalH = zd.TotalCellsZ * 1f;
 
-            float rx = Random.Range(0.5f, totalW - 0.5f);
+            float rx = startX + Random.Range(0.5f, totalW - 0.5f);
             float rz = Random.Range(0.5f, totalH - 0.5f);
 
             return t.position + t.right * rx + t.forward * rz + Vector3.up * 1f;
