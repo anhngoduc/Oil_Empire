@@ -247,7 +247,8 @@ MonoBehaviour:
   pipeWidth: 0.1
   flowSpeed: 2
   pipeColor: {r: 0, g: 0, b: 0, a: 1}
-  flowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  flowColor: {r: 1, g: 1, b: 1, a: 1}
+  segmentCount: 8
 --- !u!1001 &5242490899016666272
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -195,7 +195,6 @@ namespace OilGame
             // Kiểm tra có phải bucket không
             if (bucket.Type != BuildingType.Bucket)
             {
-                Debug.LogWarning($"[BucketSystem] Building ID={bucketUniqueID} không phải Bucket!");
                 return 0f;
             }
 
@@ -204,7 +203,6 @@ namespace OilGame
 
             if (collectedAmount <= 0f)
             {
-                Debug.Log($"[BucketSystem] Bucket ID={bucketUniqueID} rỗng, không có dầu để thu.");
                 return 0f;
             }
 
@@ -221,8 +219,6 @@ namespace OilGame
             EventBus.Publish(new OnBucketEmptied(bucketUniqueID, collectedAmount));
             EventBus.Publish(new OnBucketUpdated(bucketUniqueID, 0f, bucket.GetCapacity(), BucketState.Empty));
             EventBus.Publish(new OnOilCollected(collectedAmount, (float)playerDataService.OilHeld));
-
-            Debug.Log($"[BucketSystem] Thu {collectedAmount} Oil từ Bucket ID={bucketUniqueID}. Tổng dầu Player: {playerDataService.OilHeld}.");
 
             return collectedAmount;
         }

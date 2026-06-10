@@ -159,7 +159,6 @@ namespace OilGame
         /// <param name="zoneID">Zone gán cho bot.</param>
         private void CreateBotForZone(int zoneID)
         {
-            Debug.Log($"[BOT] CreateBotForZone: zoneID={zoneID}");
             if (landService == null || config == null || buildingDatabase == null) return;
 
             // Đánh dấu Zone thuộc về Bot
@@ -243,7 +242,6 @@ namespace OilGame
             }
 
             SpawnBotBuildings(bot);
-            Debug.Log($"[BOT] Bot {bot.botID}: {bot.buildings.Count} công trình");
         }
 
         /// <summary>
@@ -315,7 +313,6 @@ namespace OilGame
                 }
             }
 
-            Debug.Log($"[BOT DEBUG] Bot {bot.botID}: KẾT QUẢ drill={bot.buildings.FindAll(b => GetBuildingDataByTypeAndLevel(BuildingType.Drill, 1) != null).Count}/{drillCount}, bucket={bot.buildings.FindAll(b => GetBuildingDataByTypeAndLevel(BuildingType.Bucket, 1) != null).Count}/{bucketCount}");
         }
 
         /// <summary>

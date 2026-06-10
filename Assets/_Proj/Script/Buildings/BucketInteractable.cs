@@ -44,13 +44,11 @@ namespace OilGame
 
                     PlayCollectFX();
 
-                    Debug.Log($"[BucketInteractable] Player thu {collected} Oil");
                 }
             }
             else
             {
                 building.SetCurrentOil(0f);
-                Debug.Log($"[BucketInteractable] Bot reset dầu");
             }
         }
 

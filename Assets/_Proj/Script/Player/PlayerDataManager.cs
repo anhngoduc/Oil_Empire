@@ -73,8 +73,8 @@ namespace OilGame
             playerData = new PlayerData();
             playerData.playerZoneID = zoneID;
 
-            // Mở khóa plot đầu tiên (plotID = 1) của zone
-            playerData.UnlockPlot(zoneID, 1);
+            // Mở khóa plot đầu tiên (plotID = 2) của zone
+            playerData.UnlockPlot(zoneID, 2);
 
             // Cấp 1 Drill Lv1 và 1 Bucket Lv1 vào inventory
             if (drillData != null)
@@ -197,7 +197,6 @@ namespace OilGame
             }
 
             saveData.UpdateTimestamp();
-            Debug.Log($"[PlayerDataManager] Tạo SaveData: Money={saveData.money}, Inventory Items={saveData.inventoryItems.Count}, Buildings={saveData.placedBuildings.Count}.");
 
             return saveData;
         }
@@ -262,14 +261,12 @@ namespace OilGame
             if (amount <= 0) return true;
             if (playerData.money < amount)
             {
-                Debug.LogWarning($"[PlayerDataManager] Không đủ tiền! Cần ${amount}, hiện có ${playerData.money}");
                 return false;
             }
 
             double oldAmount = playerData.money;
             playerData.money -= amount;
 
-            Debug.Log($"[PlayerDataManager] -${amount} (reason: {reason}). Tiền còn: ${playerData.money}");
 
             EventBus.Publish(new OnMoneyChanged(oldAmount, playerData.money, reason));
             return true;
@@ -290,8 +287,6 @@ namespace OilGame
 
             double oldAmount = playerData.oilHeld;
             playerData.oilHeld += amount;
-
-            Debug.Log($"[PlayerDataManager] +{amount} Oil (reason: {reason}). Tổng dầu: {playerData.oilHeld}");
 
             EventBus.Publish(new OnOilChanged(oldAmount, playerData.oilHeld, reason));
         }
@@ -341,13 +336,11 @@ namespace OilGame
         {
             if (playerData.IsPlotUnlocked(zoneID, plotID))
             {
-                Debug.LogWarning($"[PlayerDataManager] Plot {plotID} trong Zone {zoneID} đã mở khóa rồi!");
                 return;
             }
 
             playerData.UnlockPlot(zoneID, plotID);
 
-            Debug.Log($"[PlayerDataManager] Đã mở khóa Zone {zoneID} - Plot {plotID}.");
 
             EventBus.Publish(new OnLandUnlocked(zoneID, plotID, 0));
         }
@@ -372,7 +365,6 @@ namespace OilGame
         {
             if (building == null) return;
             playerData.AddBuilding(building);
-            Debug.Log($"[PlayerDataManager] Thêm building ID={building.uniqueID} tại ({building.gridX},{building.gridZ}).");
         }
 
         /// <summary>
@@ -381,14 +373,7 @@ namespace OilGame
         /// <param name="uniqueID">ID duy nhất của công trình.</param>
         public void RemoveBuilding(int uniqueID)
         {
-            if (playerData.RemoveBuilding(uniqueID))
-            {
-                Debug.Log($"[PlayerDataManager] Xóa building ID={uniqueID}.");
-            }
-            else
-            {
-                Debug.LogWarning($"[PlayerDataManager] Không tìm thấy building ID={uniqueID} để xóa.");
-            }
+            
         }
 
         /// <summary>

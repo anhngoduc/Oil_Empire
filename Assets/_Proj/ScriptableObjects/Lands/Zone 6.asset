@@ -14,10 +14,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zoneID: 6
   zoneName: "Khu \u0111\u1EA5t 6"
+  cellsPerPlotX: 3
+  cellsPerPlotZ: 4
+  columns: 3
+  rows: 3
   plots:
-  - {fileID: 11400000, guid: 0adb20378f50b414c94c56b7412f1f61, type: 2}
-  - {fileID: 11400000, guid: 9f98a1b645fe9e94b92be13f37633076, type: 2}
-  - {fileID: 11400000, guid: 66b39a753f93b2247b37b0e7ef93b1e4, type: 2}
-  - {fileID: 11400000, guid: ee516a45e552afa4d8d8479bf77dc105, type: 2}
-  - {fileID: 11400000, guid: e4183d90e6503c643a14cddd40864951, type: 2}
-  worldPosition: {x: 25, y: 0, z: 0}
+  - plotID: 1
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
+  - plotID: 2
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
+  - plotID: 3
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
+  - plotID: 4
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+  - plotID: 5
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+  - plotID: 6
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+  - plotID: 7
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}
+  - plotID: 8
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}
+  - plotID: 9
+    plotName: 
+    oilMultiplier: 1
+    unlockCost: 1000
+    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}

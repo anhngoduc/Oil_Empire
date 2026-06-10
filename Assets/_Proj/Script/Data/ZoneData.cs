@@ -113,5 +113,8 @@ namespace OilGame
 
         [Tooltip("Giá mở khóa.")]
         public double unlockCost = 1000;
+
+        [Tooltip("màu mảnh đát.")]
+        public Texture2D plotTexture;
     }
 }

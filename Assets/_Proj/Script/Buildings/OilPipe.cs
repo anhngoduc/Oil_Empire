@@ -4,32 +4,36 @@ using UnityEngine;
 
 namespace OilGame
 {
-    /// <summary>
-    /// Gắn vào Prefab Drill. Vẽ đường ống dầu đến Bucket đang được bơm.
-    /// </summary>
     public class OilPipe : MonoBehaviour
     {
         [Header("Cấu hình")]
         [SerializeField] private float pipeWidth = 0.1f;
         [SerializeField] private float flowSpeed = 2f;
         [SerializeField] private Color pipeColor = Color.black;
-        [SerializeField] private Color flowColor = Color.yellow;
+        [SerializeField] private Color flowColor = Color.white;
+        [SerializeField] private int segmentCount = 10;
 
         private LineRenderer lineRenderer;
         private Building myBuilding;
         private Transform targetBucket;
         private int activeBucketID = -1;
-        private Material pipeMaterial;
 
         private void Awake()
         {
             myBuilding = GetComponent<Building>();
             if (myBuilding == null || myBuilding.Type != BuildingType.Drill) return;
 
-            lineRenderer = gameObject.AddComponent<LineRenderer>();
-            lineRenderer.positionCount = 2;
+            // Tạo GameObject con riêng cho LineRenderer
+            GameObject pipeObj = new GameObject("PipeRenderer");
+            pipeObj.transform.SetParent(transform);
+            pipeObj.transform.localPosition = Vector3.zero;
+            pipeObj.transform.localRotation = Quaternion.Euler(90, 0, 0);
+
+            lineRenderer = pipeObj.AddComponent<LineRenderer>();
+            lineRenderer.positionCount = segmentCount;
             lineRenderer.startWidth = pipeWidth;
             lineRenderer.endWidth = pipeWidth;
+            lineRenderer.alignment = LineAlignment.TransformZ;
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
             lineRenderer.enabled = false;
         }
@@ -70,7 +74,6 @@ namespace OilGame
                 return;
             }
 
-            // Thử tìm trong BuildingService (building player)
             IBuildingService bs = ServiceLocator.Get<IBuildingService>();
             Building bucket = bs?.GetBuildingByID(activeBucketID);
             if (bucket != null)
@@ -80,7 +83,6 @@ namespace OilGame
                 return;
             }
 
-            // Tìm building bot (fakeID âm, không có trong BuildingService)
             Building[] allBuildings = FindObjectsOfType<Building>();
             foreach (var b in allBuildings)
             {
@@ -100,20 +102,33 @@ namespace OilGame
         {
             if (targetBucket == null || !lineRenderer.enabled) return;
 
-            // Vẽ ống
-            Vector3 start = transform.position + Vector3.up * 0.5f;
-            Vector3 end = targetBucket.position + Vector3.up * 0.5f;
-            lineRenderer.SetPosition(0, start);
-            lineRenderer.SetPosition(1, end);
+            Vector3 start = transform.position + Vector3.up * .1f;
+            Vector3 end = targetBucket.position + Vector3.up * .1f;
 
-            // Tạo hiệu ứng dòng chảy bằng Gradient
+            for (int i = 0; i < segmentCount; i++)
+            {
+                float t = i / (float)(segmentCount - 1);
+                Vector3 pos = Vector3.Lerp(start, end, t);
+                lineRenderer.SetPosition(i, pos);
+            }
+
             Gradient gradient = new Gradient();
-            float t = Mathf.PingPong(Time.time * flowSpeed, 1f);
 
-            GradientColorKey[] colorKeys = new GradientColorKey[3];
-            colorKeys[0] = new GradientColorKey(pipeColor, 0f);
-            colorKeys[1] = new GradientColorKey(flowColor, t);
-            colorKeys[2] = new GradientColorKey(pipeColor, 1f);
+            // Chạy 1 chiều: từ 0 → 1, rồi quay lại 0 (loop)
+            float flow = Mathf.Repeat(Time.time * flowSpeed, 1f);
+
+            int keyCount = Mathf.Min(segmentCount, 8);
+            GradientColorKey[] colorKeys = new GradientColorKey[keyCount];
+
+            for (int i = 0; i < keyCount; i++)
+            {
+                float t = i / (float)(keyCount - 1);
+                // Khoảng cách theo 1 chiều, wrap around
+                float dist = Mathf.Abs(t - flow);
+                if (dist > 0.5f) dist = 1f - dist; // Wrap around
+                Color color = Color.Lerp(flowColor, pipeColor, dist * 5f);
+                colorKeys[i] = new GradientColorKey(color, t);
+            }
 
             GradientAlphaKey[] alphaKeys = new GradientAlphaKey[2];
             alphaKeys[0] = new GradientAlphaKey(1f, 0f);
