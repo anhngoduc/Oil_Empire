@@ -7,20 +7,20 @@ namespace OilGame
 {
     public interface IPlayerDataService
     {
-        double Money { get; }
-        double OilHeld { get; }
+        long Money { get; }
+        long OilHeld { get; }
         int PlayerZoneID { get; }
         PlayerData CurrentData { get; }
-        void AddMoney(double amount, MoneyChangeReason reason);
-        bool SubtractMoney(double amount, MoneyChangeReason reason);
-        void AddOil(double amount, OilChangeReason reason);
-        bool SubtractOil(double amount, OilChangeReason reason);
+        void AddMoney(long amount, MoneyChangeReason reason);
+        bool SubtractMoney(long amount, MoneyChangeReason reason);
+        void AddOil(long amount, OilChangeReason reason);
+        bool SubtractOil(long amount, OilChangeReason reason);
         bool IsPlotUnlocked(int zoneID, int plotID);
         void UnlockPlot(int zoneID, int plotID);
         List<BuildingRuntimeData> GetAllBuildings();
         void AddBuilding(BuildingRuntimeData building);
         void RemoveBuilding(int uniqueID);
-        void UpdateBucketOil(int uniqueID, float newAmount);
+        void UpdateBucketOil(int uniqueID, long newAmount);
         Dictionary<int, int> GetInventory();
         int GetInventoryCount(int buildingID);
         void SetInventoryItem(int buildingID, int count);
@@ -80,21 +80,21 @@ namespace OilGame
         bool IsProductionPaused { get; }
         void ResumeProduction();
         void PauseProduction();
-        float TotalProductionRate { get; }
+        long TotalProductionRate { get; }
     }
 
     public interface IBucketService
     {
-        void FillOil(float amount);
-        float CollectOil(int bucketUniqueID);
+        void FillOil(long amount);
+        long CollectOil(int bucketUniqueID);
         BucketState GetBucketState(int bucketUniqueID);
-        float GetBucketCurrentOil(int bucketUniqueID);
+        long GetBucketCurrentOil(int bucketUniqueID);
     }
 
     public interface IMarketService
     {
-        float CurrentOilPrice { get; }
-        float SellOil(float amount);
+        long CurrentOilPrice { get; }
+        long SellOil(long amount);
         float GetTimeUntilNextPriceUpdate();
     }
 

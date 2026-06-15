@@ -15,8 +15,8 @@ MonoBehaviour:
   autoSaveInterval: 60
   saveOnQuit: 1
   saveFileName: oilgame_save.dat
-  minOilPrice: 5
-  maxOilPrice: 20
+  minOilPrice: 1
+  maxOilPrice: 15
   priceUpdateInterval: 30
   cellSize: 1
   raycastDistance: 15

@@ -252,7 +252,7 @@ namespace OilGame
             if (zone.owner == ZoneOwner.Player && playerDataService != null)
             {
                 double cost = GetPlotUnlockCost(zoneID, plotID);
-                if (!playerDataService.SubtractMoney(cost, MoneyChangeReason.UnlockLand))
+                if (!playerDataService.SubtractMoney((long)cost, MoneyChangeReason.UnlockLand))
                 {
                     Debug.LogWarning($"[LandManager] Player không đủ tiền mở khóa Plot {plotID}. Cần ${cost}.");
                     return false;

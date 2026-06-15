@@ -12,7 +12,6 @@ namespace OilGame
         [SerializeField] private TextMeshProUGUI moneyText;
         [SerializeField] private TextMeshProUGUI oilText;
         [SerializeField] private TextMeshProUGUI productionRateText;
-        [SerializeField] private TextMeshProUGUI oilPriceText;
 
         [Header("=== Panel UI ===")]
         [SerializeField] private GameObject inventoryPanel;
@@ -43,7 +42,6 @@ namespace OilGame
             EventBus.Subscribe<OnMoneyChanged>(OnMoneyChangedHandler);
             EventBus.Subscribe<OnOilChanged>(OnOilChangedHandler);
             EventBus.Subscribe<OnOilProductionUpdated>(OnProductionUpdatedHandler);
-            EventBus.Subscribe<OnOilPriceChanged>(OnOilPriceChangedHandler);
             EventBus.Subscribe<OnPlacementStarted>(OnPlacementStart);
             EventBus.Subscribe<OnPlacementEnded>(OnPlacementEnd);
 
@@ -60,7 +58,6 @@ namespace OilGame
 
             UpdateMoneyDisplay(playerDataService?.Money ?? 0);
             UpdateOilDisplay(playerDataService?.OilHeld ?? 0);
-            UpdateOilPriceDisplay(marketService?.CurrentOilPrice ?? 0f);
 
             if (shopPanel != null) shopPanel.SetActive(false);
             if (marketPanel != null) marketPanel.SetActive(false);
@@ -74,26 +71,23 @@ namespace OilGame
             EventBus.Unsubscribe<OnMoneyChanged>(OnMoneyChangedHandler);
             EventBus.Unsubscribe<OnOilChanged>(OnOilChangedHandler);
             EventBus.Unsubscribe<OnOilProductionUpdated>(OnProductionUpdatedHandler);
-            EventBus.Unsubscribe<OnOilPriceChanged>(OnOilPriceChangedHandler);
             EventBus.Unsubscribe<OnPlacementStarted>(OnPlacementStart);
             EventBus.Unsubscribe<OnPlacementEnded>(OnPlacementEnd);
         }
 
         // === Event Handlers ===
         private void OnMoneyChangedHandler(OnMoneyChanged evt) => UpdateMoneyDisplay(evt.newAmount);
-        private void OnOilChangedHandler(OnOilChanged evt) => UpdateOilDisplay(evt.newAmount);
+        private void OnOilChangedHandler(OnOilChanged evt) => UpdateOilDisplay((long)evt.newAmount);
         private void OnProductionUpdatedHandler(OnOilProductionUpdated evt) => UpdateProductionRateDisplay(evt.currentTotalProductionRate);
-        private void OnOilPriceChangedHandler(OnOilPriceChanged evt) => UpdateOilPriceDisplay(evt.newPrice);
         private void OnPlacementStart(OnPlacementStarted e) { if (placeButton != null) placeButton.gameObject.SetActive(true); }
         private void OnPlacementEnd(OnPlacementEnded e) { if (placeButton != null) placeButton.gameObject.SetActive(false); }
 
         // === Hiển thị ===
-        private void UpdateMoneyDisplay(double amount) { if (moneyText != null) moneyText.text = $"${amount:N0}"; }
-        private void UpdateOilDisplay(double amount) { if (oilText != null) oilText.text = $"Oil: {amount:N0}"; }
-        private void UpdateProductionRateDisplay(float rate) { if (productionRateText != null) productionRateText.text = $"{rate:F1} Oil/sec"; }
-        private void UpdateOilPriceDisplay(float price) { if (oilPriceText != null) oilPriceText.text = $"Giá: ${price:F2}/Oil"; }
+        private void UpdateMoneyDisplay(long amount) { if (moneyText != null) moneyText.text = $"{amount} $"; }
+        private void UpdateOilDisplay(long amount) { if (oilText != null) oilText.text = $"{amount}"; }
+        private void UpdateProductionRateDisplay(float rate) { if (productionRateText != null) productionRateText.text = $"{rate} Oil/s"; }
 
-        // === Mở/đóng panel ===
+        // === Mở/đóng panel ===  
         public void ShowShop(bool show, BuildingType? filterType = null)
         {
             if (shopPanel == null) return;

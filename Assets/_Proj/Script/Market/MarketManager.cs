@@ -32,7 +32,7 @@ namespace OilGame
         // === Dữ liệu runtime ===
 
         /// <summary>Giá dầu hiện tại.</summary>
-        private float currentOilPrice;
+        private long currentOilPrice;
 
         /// <summary>Thời gian còn lại đến lần cập nhật giá tiếp theo (giây).</summary>
         private float timeUntilNextUpdate;
@@ -46,7 +46,7 @@ namespace OilGame
         #region IMarketService Properties
 
         /// <summary>Giá dầu hiện tại.</summary>
-        public float CurrentOilPrice => currentOilPrice;
+        public long CurrentOilPrice => currentOilPrice;
 
         #endregion
 
@@ -70,11 +70,11 @@ namespace OilGame
             // Khởi tạo giá mặc định
             if (gameConfig != null)
             {
-                currentOilPrice = Random.Range(gameConfig.minOilPrice, gameConfig.maxOilPrice);
+                currentOilPrice = (long)Random.Range(gameConfig.minOilPrice, gameConfig.maxOilPrice + 1);
             }
             else
             {
-                currentOilPrice = 10f;
+                currentOilPrice = 10;
                 Debug.LogWarning("[MarketManager] GameConfig chưa được gán, dùng giá mặc định $10.");
             }
         }
@@ -138,11 +138,9 @@ namespace OilGame
 
                 // Random giá mới
                 float oldPrice = currentOilPrice;
-                currentOilPrice = Random.Range(gameConfig.minOilPrice, gameConfig.maxOilPrice);
-                // Làm tròn 2 chữ số thập phân
-                currentOilPrice = Mathf.Round(currentOilPrice * 100f) / 100f;
+                currentOilPrice = (long)Random.Range(gameConfig.minOilPrice, gameConfig.maxOilPrice + 1);
 
-                Debug.Log($"[MarketManager] Giá dầu thay đổi: ${oldPrice:F2} -> ${currentOilPrice:F2}");
+                Debug.Log($"[MarketManager] Giá dầu thay đổi: ${oldPrice} -> ${currentOilPrice}");
 
                 // Phát sự kiện
                 EventBus.Publish(new OnOilPriceChanged(oldPrice, currentOilPrice));
@@ -167,25 +165,25 @@ namespace OilGame
         /// </summary>
         /// <param name="amount">Lượng dầu muốn bán.</param>
         /// <returns>Số tiền nhận được (0 nếu bán thất bại).</returns>
-        public float SellOil(float amount)
+        public long SellOil(long amount)
         {
-            if (amount <= 0f)
+            if (amount <= 0)
             {
                 Debug.LogWarning("[MarketManager] Lượng dầu bán phải > 0!");
-                return 0f;
+                return 0;
             }
 
             if (playerDataService == null)
             {
                 Debug.LogError("[MarketManager] PlayerDataService chưa sẵn sàng!");
-                return 0f;
+                return 0;
             }
 
             // Kiểm tra người chơi có đủ dầu không
             if (playerDataService.OilHeld < amount)
             {
                 Debug.LogWarning($"[MarketManager] Không đủ dầu! Cần {amount}, hiện có {playerDataService.OilHeld}.");
-                return 0f;
+                return 0;
             }
 
             // Tính tiền
@@ -195,14 +193,14 @@ namespace OilGame
             playerDataService.SubtractOil(amount, OilChangeReason.Sell);
 
             // Thêm tiền
-            playerDataService.AddMoney(moneyEarned, MoneyChangeReason.SellOil);
+            playerDataService.AddMoney((long)moneyEarned, MoneyChangeReason.SellOil);
 
             // Phát sự kiện bán dầu
             EventBus.Publish(new OnOilSold(amount, currentOilPrice, moneyEarned));
 
-            Debug.Log($"[MarketManager] Bán {amount} Oil x ${currentOilPrice:F2} = ${moneyEarned:F2}.");
+            Debug.Log($"[MarketManager] Bán {amount} Oil x ${currentOilPrice} = ${moneyEarned}.");
 
-            return moneyEarned;
+            return (long)moneyEarned;
         }
 
         /// <summary>
@@ -212,7 +210,7 @@ namespace OilGame
         public float SellAllOil()
         {
             if (playerDataService == null) return 0f;
-            return SellOil((float)playerDataService.OilHeld);
+            return SellOil((long)playerDataService.OilHeld);
         }
 
         #endregion
@@ -234,7 +232,7 @@ namespace OilGame
         public void SetPriceFromSave(float price)
         {
             float oldPrice = currentOilPrice;
-            currentOilPrice = price;
+            currentOilPrice = (long)price;
 
 
             // Phát sự kiện để UI cập nhật

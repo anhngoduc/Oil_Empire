@@ -12,6 +12,10 @@ namespace OilGame
     {
         [SerializeField] private TextMeshProUGUI infoText;
 
+        [Header("=== Màu chữ ===")]
+        [SerializeField] private Color normalColor = Color.white;
+        [SerializeField] private Color fullColor = Color.green;
+
         private Building building;
         private Camera mainCamera;
 
@@ -30,17 +34,19 @@ namespace OilGame
 
         private void Update()
         {
-            if (building == null || building.BuildingData == null) return;
+            if (building == null || building.BuildingData == null || infoText == null) return;
 
             if (building.Type == BuildingType.Drill)
             {
                 infoText.text = $"{building.BuildingData.productionRate}/s";
+                infoText.color = normalColor;
             }
             else if (building.Type == BuildingType.Bucket)
             {
-                float current = building.GetCurrentOil();
-                float max = building.GetCapacity();
-                infoText.text = $"{current:F0}/{max:F0}";
+                long current = building.GetCurrentOil();
+                long max = building.GetCapacity();
+                infoText.text = $"{current}/{max}";
+                infoText.color = current >= max ? fullColor : normalColor;
             }
         }
     }

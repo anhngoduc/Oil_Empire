@@ -1,72 +1,46 @@
 ﻿// Assets/_Project/Scripts/UI/MarketUI.cs
 
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 namespace OilGame
 {
-    /// <summary>
-    /// MarketUI - Quản lý giao diện bán dầu.
-    /// Phiên bản đơn giản: chỉ có nút Bán tất cả.
-    /// </summary>
     public class MarketUI : MonoBehaviour
     {
         [Header("=== Hiển thị ===")]
-        [Tooltip("Text hiển thị giá dầu hiện tại.")]
         [SerializeField] private TextMeshProUGUI currentPriceText;
-
-        [Tooltip("Text hiển thị thời gian đến lần đổi giá tiếp.")]
         [SerializeField] private TextMeshProUGUI countdownText;
+        [SerializeField] private TextMeshProUGUI sellInfoText;
 
-        [Tooltip("Text hiển thị số dầu đang có.")]
-        [SerializeField] private TextMeshProUGUI oilHeldText;
-
-        [Tooltip("Text hiển thị số tiền ước tính nhận được.")]
-        [SerializeField] private TextMeshProUGUI estimatedMoneyText;
+        [Header("=== Slider ===")]
+        [SerializeField] private Slider priceSlider;
 
         [Header("=== Nút ===")]
-        [Tooltip("Nút Bán tất cả.")]
         [SerializeField] private Button sellAllButton;
 
-        // Tham chiếu service
         private IMarketService marketService;
         private IPlayerDataService playerDataService;
 
-        // Giá trị hiện tại
-        private float currentPrice;
-
-        #region Khởi tạo
-
         private void Start()
         {
-            // Lấy service
             marketService = ServiceLocator.Get<IMarketService>();
             playerDataService = ServiceLocator.Get<IPlayerDataService>();
 
-            // Gán sự kiện nút
             if (sellAllButton != null)
                 sellAllButton.onClick.AddListener(OnSellAllClicked);
 
-            // Đăng ký sự kiện
             EventBus.Subscribe<OnOilPriceChanged>(OnOilPriceChangedHandler);
             EventBus.Subscribe<OnOilChanged>(OnOilChangedHandler);
 
-            // Cập nhật giá trị ban đầu
-            UpdatePriceDisplay();
-            UpdateOilDisplay();
-
-            Debug.Log("[MarketUI] Đã khởi tạo.");
+            UpdateAll();
         }
 
         private void Update()
         {
-            // Cập nhật countdown
             if (marketService != null)
-            {
-                float timeLeft = marketService.GetTimeUntilNextPriceUpdate();
-                UpdateCountdownDisplay(timeLeft);
-            }
+                UpdateCountdown(marketService.GetTimeUntilNextPriceUpdate());
         }
 
         private void OnDestroy()
@@ -75,94 +49,63 @@ namespace OilGame
             EventBus.Unsubscribe<OnOilChanged>(OnOilChangedHandler);
         }
 
-        #endregion
-
-        #region Cập nhật Hiển thị
-
-        private void UpdatePriceDisplay()
+        // === Cập nhật ===
+        private void UpdateAll()
         {
-            if (marketService != null)
-            {
-                currentPrice = marketService.CurrentOilPrice;
-                if (currentPriceText != null)
-                {
-                    currentPriceText.text = $"Giá: ${currentPrice:F2}/Oil";
-                }
-            }
-            UpdateEstimatedMoney();
+            UpdatePrice();
+            UpdateSlider();
+            UpdateSellInfo();
         }
 
-        private void UpdateOilDisplay()
+        private void UpdatePrice()
         {
-            if (playerDataService != null && oilHeldText != null)
-            {
-                oilHeldText.text = $"Dầu đang có: {playerDataService.OilHeld:N0}";
-            }
-            UpdateEstimatedMoney();
+            long price = marketService?.CurrentOilPrice ?? 0;
+            if (currentPriceText != null)
+                currentPriceText.text = $"Giá hiện tại: ${price}";
         }
 
-        private void UpdateCountdownDisplay(float timeLeft)
+        private void UpdateCountdown(float timeLeft)
         {
             if (countdownText != null)
             {
-                if (timeLeft > 0f)
-                {
-                    int minutes = Mathf.FloorToInt(timeLeft / 60f);
-                    int seconds = Mathf.FloorToInt(timeLeft % 60f);
-                    countdownText.text = $"Đổi giá sau: {minutes:D2}:{seconds:D2}";
-                }
-                else
-                {
-                    countdownText.text = "Đang đổi giá...";
-                }
+                int seconds = Mathf.CeilToInt(timeLeft);
+                countdownText.text = $"Giá tiếp theo sau: {seconds}s";
             }
         }
 
-        private void UpdateEstimatedMoney()
+        private void UpdateSlider()
         {
-            if (estimatedMoneyText != null && playerDataService != null)
+            long price = marketService?.CurrentOilPrice ?? 0;
+            if (priceSlider != null)
             {
-                double totalOil = playerDataService.OilHeld;
-                double estimatedMoney = totalOil * currentPrice;
-                estimatedMoneyText.text = $"Sẽ nhận: ${estimatedMoney:F2}";
+                priceSlider.minValue = 1;
+                priceSlider.maxValue = 15;
+                priceSlider.DOValue(price, 1f).SetEase(Ease.OutBack); // Mượt
             }
         }
 
-        #endregion
+        private void UpdateSellInfo()
+        {
+            long oil = playerDataService != null ? (long)playerDataService.OilHeld : 0;
+            long price = marketService?.CurrentOilPrice ?? 0;
+            long total = oil * price;
 
-        #region Sự kiện
+            if (sellInfoText != null)
+                sellInfoText.text = $"Bán {oil} dầu (+${total:N0})";
+        }
 
+        // === Event ===
+        private void OnOilPriceChangedHandler(OnOilPriceChanged evt) => UpdateAll();
+        private void OnOilChangedHandler(OnOilChanged evt) => UpdateSellInfo();
+
+        // === Bán ===
         private void OnSellAllClicked()
         {
             if (marketService == null || playerDataService == null) return;
-
-            float totalOil = (float)playerDataService.OilHeld;
-            if (totalOil <= 0f)
-            {
-                Debug.Log("[MarketUI] Không có dầu để bán!");
-                return;
-            }
-
-            float earned = marketService.SellOil(totalOil);
-
-            if (earned > 0f)
-            {
-                Debug.Log($"[MarketUI] Đã bán hết {totalOil} Oil, nhận ${earned:F2}.");
-                UpdateOilDisplay();
-                UpdateEstimatedMoney();
-            }
+            long oil = (long)playerDataService.OilHeld;
+            if (oil <= 0) return;
+            marketService.SellOil(oil);
+            UpdateSellInfo();
         }
-
-        private void OnOilPriceChangedHandler(OnOilPriceChanged evt)
-        {
-            UpdatePriceDisplay();
-        }
-
-        private void OnOilChangedHandler(OnOilChanged evt)
-        {
-            UpdateOilDisplay();
-        }
-
-        #endregion
     }
 }

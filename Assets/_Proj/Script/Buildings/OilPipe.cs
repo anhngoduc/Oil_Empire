@@ -12,6 +12,8 @@ namespace OilGame
         [SerializeField] private Color pipeColor = Color.black;
         [SerializeField] private Color flowColor = Color.white;
         [SerializeField] private int segmentCount = 10;
+        [SerializeField] private float lineHeigh = 0.05f;
+
 
         private LineRenderer lineRenderer;
         private Building myBuilding;
@@ -102,8 +104,8 @@ namespace OilGame
         {
             if (targetBucket == null || !lineRenderer.enabled) return;
 
-            Vector3 start = transform.position + Vector3.up * .1f;
-            Vector3 end = targetBucket.position + Vector3.up * .1f;
+            Vector3 start = transform.position + Vector3.up * lineHeigh;
+            Vector3 end = targetBucket.position + Vector3.up * lineHeigh;
 
             for (int i = 0; i < segmentCount; i++)
             {

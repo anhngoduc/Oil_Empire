@@ -112,7 +112,7 @@ namespace OilGame
         [Min(1)] public float oilMultiplier = 1;
 
         [Tooltip("Giá mở khóa.")]
-        public double unlockCost = 1000;
+        public long unlockCost = 1000;
 
         [Tooltip("màu mảnh đát.")]
         public Texture2D plotTexture;

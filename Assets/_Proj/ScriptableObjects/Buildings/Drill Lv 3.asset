@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Drill Lv 3
   m_EditorClassIdentifier: 
   buildingID: 103
-  buildingName: Drill Lv3
+  buildingName: "M\xE1y khoan n\xE2ng cao"
   buildingType: 0
   level: 3
-  price: 2000
-  productionRate: 10
+  price: 3600
+  productionRate: 4
   capacity: 0
-  prefab: {fileID: 2814588551573494025, guid: 1bd7b81b79d5d51499cf0c7643615705, type: 3}
-  icon: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  prefab: {fileID: 1896670287418448366, guid: ae3d8cd0a9ce33741b1d546f2e592709, type: 3}
+  icon: {fileID: 21300000, guid: 7b547714cfbcd4944b31bb8eca116e92, type: 3}
   description: 

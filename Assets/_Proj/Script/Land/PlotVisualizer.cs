@@ -128,7 +128,18 @@ namespace OilGame
                 // Tạo nút mở khóa cho Player, chưa mở
                 if (zone.zoneID == playerDataService?.PlayerZoneID && !IsPlotUnlocked(zone.zoneID, plotID))
                 {
-                    CreateUnlockButton(centerWorld, zone.zoneID, plotID);
+                    GameObject btnGO = CreateUnlockButton(centerWorld, zone.zoneID, plotID);
+
+                    // GÁN SETUP CHO PLOTTRIGGER
+                    if (btnGO != null)
+                    {
+                        PlotTrigger plotTrigger = cube.GetComponent<PlotTrigger>();
+                        UnlockButtonSetup setup = btnGO.GetComponent<UnlockButtonSetup>();
+                        if (plotTrigger != null && setup != null)
+                        {
+                            plotTrigger.Setup(setup);
+                        }
+                    }
                 }
             }
         }
@@ -138,7 +149,7 @@ namespace OilGame
             return playerDataService != null && playerDataService.IsPlotUnlocked(zoneID, plotID);
         }
 
-        private void CreateUnlockButton(Vector3 position, int zoneID, int plotID)
+        private GameObject CreateUnlockButton(Vector3 position, int zoneID, int plotID)
         {
             position.y = 0.15f;
 
@@ -146,20 +157,20 @@ namespace OilGame
             btnGO.name = $"BTN_Unlock_{zoneID}_{plotID}";
             btnGO.AddComponent<Billboard>();
 
-            Button btn = btnGO.GetComponent<Button>();
-            if (btn == null) btn = btnGO.GetComponentInChildren<Button>();
-
-            if (btn != null)
+            UnlockButtonSetup setup = btnGO.GetComponent<UnlockButtonSetup>();
+            if (setup != null)
             {
-                btn.onClick.AddListener(() =>
-                {
-                    ILandService landService = ServiceLocator.Get<ILandService>();
-                    if (landService != null)
-                    {
-                        landService.UnlockPlot(zoneID, plotID);
-                    }
-                });
+                PlotInfo plotInfo = GetPlotInfo(zoneID, plotID);
+                if (plotInfo != null)
+                    setup.Setup((long)plotInfo.unlockCost, (long)plotInfo.oilMultiplier, zoneID, plotID);
             }
+            return btnGO;
+        }
+
+        private PlotInfo GetPlotInfo(int zoneID, int plotID)
+        {
+            ZoneRuntime zone = zoneManager.GetZone(zoneID);
+            return zone?.zoneData.GetPlot(plotID);
         }
     }
 }

@@ -81,6 +81,6 @@ namespace OilGame
         public int plotID;
         public int gridX;
         public int gridZ;
-        public float currentOilInBucket;
+        public long currentOilInBucket;
     }
 }

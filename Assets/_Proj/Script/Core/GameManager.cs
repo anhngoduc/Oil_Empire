@@ -238,7 +238,7 @@ namespace OilGame
             playerDataManager.InitializeNewGame(playerZoneID, defaultDrill, defaultBucket);
 
             // 4. Khởi tạo Grid cho plot đầu tiên
-            gridManager.InitializeGridForPlot(playerZoneID, 1);
+            gridManager.InitializeGridForPlot(playerZoneID, 2);
 
             // 5. Khởi tạo Bot Simulation
             botSimulationManager.InitializeNewSession();

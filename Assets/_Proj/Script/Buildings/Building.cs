@@ -122,36 +122,36 @@ namespace OilGame
         /// <summary>
         /// Lấy lượng dầu hiện tại trong bucket (chỉ có nghĩa nếu là Bucket).
         /// </summary>
-        public float GetCurrentOil()
+        public long GetCurrentOil()
         {
             if (runtimeData != null && BuildingData.buildingType == BuildingType.Bucket)
             {
                 return runtimeData.currentOilInBucket;
             }
-            return 0f;
+            return 0;
         }
 
         /// <summary>
         /// Cập nhật lượng dầu trong bucket (gọi từ BucketSystem).
         /// </summary>
-        public void SetCurrentOil(float amount)
+        public void SetCurrentOil(long amount)
         {
             if (runtimeData != null && BuildingData.buildingType == BuildingType.Bucket)
             {
-                runtimeData.currentOilInBucket = Mathf.Clamp(amount, 0f, BuildingData.capacity);
+                runtimeData.currentOilInBucket = (long)Mathf.Clamp(amount, 0, BuildingData.capacity);
             }
         }
 
         /// <summary>
         /// Lấy dung tích tối đa của bucket.
         /// </summary>
-        public float GetCapacity()
+        public long GetCapacity()
         {
             if (BuildingData != null && BuildingData.buildingType == BuildingType.Bucket)
             {
                 return BuildingData.capacity;
             }
-            return 0f;
+            return 0;
         }
 
         /// <summary>

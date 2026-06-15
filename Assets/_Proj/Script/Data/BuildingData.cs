@@ -14,11 +14,11 @@ namespace OilGame
         [Range(1, 5)] public int level;
 
         [Header("=== Kinh tế ===")]
-        public double price;
+        public long price;
 
         [Header("=== Chỉ số ===")]
-        public float productionRate;
-        public float capacity;
+        public long productionRate;
+        public long capacity;
 
         [Header("=== Hiển thị ===")]
         public GameObject prefab;
@@ -30,12 +30,12 @@ namespace OilGame
             if (buildingType == BuildingType.Drill)
                 return $"{productionRate} Oil/sec";
             else
-                return $"Capacity: {capacity:F0} Oil";
+                return $"Capacity: {capacity} Oil";
         }
 
         public string GetPriceDisplay()
         {
-            return $"${price:N0}";
+            return $"${price}";
         }
 
         public BuildingRuntimeData CreateRuntimeData(int uniqueID, int zoneID, int plotID, int gridX, int gridZ)
@@ -48,7 +48,7 @@ namespace OilGame
                 plotID = plotID,
                 gridX = gridX,
                 gridZ = gridZ,
-                currentOilInBucket = 0f
+                currentOilInBucket = 0
             };
         }
     }

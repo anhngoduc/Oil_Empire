@@ -10,14 +10,14 @@ namespace OilGame
     /// </summary>
     public struct OnMoneyChanged
     {
-        public double oldAmount;            // Số tiền trước khi thay đổi
-        public double newAmount;            // Số tiền sau khi thay đổi
-        public double changeAmount;         // Số tiền thay đổi (dương = tăng, âm = giảm)
+        public long oldAmount;            // Số tiền trước khi thay đổi
+        public long newAmount;            // Số tiền sau khi thay đổi
+        public long changeAmount;         // Số tiền thay đổi (dương = tăng, âm = giảm)
         public MoneyChangeReason reason;    // Lý do thay đổi
 
-        public OnMoneyChanged(double oldAmt, double newAmt, MoneyChangeReason reason)
+        public OnMoneyChanged(long oldAmt, long newAmt, MoneyChangeReason reason)
         {
-            this.oldAmount = oldAmt;
+            this.oldAmount = (long)oldAmt;
             this.newAmount = newAmt;
             this.changeAmount = newAmt - oldAmt;
             this.reason = reason;

@@ -14,8 +14,8 @@ namespace OilGame
     public class PlayerData
     {
         // === Tiền và Dầu ===
-        public double money;
-        public double oilHeld;
+        public long money;
+        public long oilHeld;
 
         // === Đất đai ===
         public int playerZoneID;
@@ -126,7 +126,7 @@ namespace OilGame
         public int plotID;
         public int gridX;
         public int gridZ;
-        public float currentOilInBucket;
+        public long currentOilInBucket;
 
         [NonSerialized]
         public GameObject buildingObject;

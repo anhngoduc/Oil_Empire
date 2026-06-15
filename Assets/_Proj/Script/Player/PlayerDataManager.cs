@@ -30,10 +30,10 @@ namespace OilGame
         #region IPlayerDataService Properties
 
         /// <summary>Số tiền hiện tại của người chơi.</summary>
-        public double Money => playerData.money;
+        public long Money => playerData.money;
 
         /// <summary>Lượng dầu đang giữ (đã thu từ bucket, chưa bán).</summary>
-        public double OilHeld => playerData.oilHeld;
+        public long OilHeld => playerData.oilHeld;
 
         /// <summary>ZoneID mà người chơi sở hữu.</summary>
         public int PlayerZoneID => playerData.playerZoneID;
@@ -107,8 +107,8 @@ namespace OilGame
             playerData = new PlayerData();
 
             // Khôi phục tiền và dầu
-            playerData.money = saveData.money;
-            playerData.oilHeld = saveData.oilHeld;
+            playerData.money = (long)saveData.money;
+            playerData.oilHeld = (long)saveData.oilHeld;
 
             // Khôi phục zone
             playerData.playerZoneID = saveData.playerZoneID;
@@ -238,7 +238,7 @@ namespace OilGame
         /// </summary>
         /// <param name="amount">Số tiền thêm (phải > 0).</param>
         /// <param name="reason">Lý do (dùng để log hoặc UI).</param>
-        public void AddMoney(double amount, MoneyChangeReason reason)
+        public void AddMoney(long amount, MoneyChangeReason reason)
         {
             if (amount <= 0) return;
 
@@ -247,7 +247,7 @@ namespace OilGame
 
             Debug.Log($"[PlayerDataManager] +${amount} (reason: {reason}). Tiền mới: ${playerData.money}");
 
-            EventBus.Publish(new OnMoneyChanged(oldAmount, playerData.money, reason));
+            EventBus.Publish(new OnMoneyChanged((long)oldAmount, playerData.money, reason));
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace OilGame
         /// <param name="amount">Số tiền cần trừ.</param>
         /// <param name="reason">Lý do trừ tiền.</param>
         /// <returns>True nếu trừ thành công, False nếu không đủ tiền.</returns>
-        public bool SubtractMoney(double amount, MoneyChangeReason reason)
+        public bool SubtractMoney(long amount, MoneyChangeReason reason)
         {
             if (amount <= 0) return true;
             if (playerData.money < amount)
@@ -268,7 +268,7 @@ namespace OilGame
             playerData.money -= amount;
 
 
-            EventBus.Publish(new OnMoneyChanged(oldAmount, playerData.money, reason));
+            EventBus.Publish(new OnMoneyChanged((long)oldAmount, playerData.money, reason));
             return true;
         }
 
@@ -281,7 +281,7 @@ namespace OilGame
         /// </summary>
         /// <param name="amount">Lượng dầu thêm (phải > 0).</param>
         /// <param name="reason">Lý do.</param>
-        public void AddOil(double amount, OilChangeReason reason)
+        public void AddOil(long amount, OilChangeReason reason)
         {
             if (amount <= 0) return;
 
@@ -297,7 +297,7 @@ namespace OilGame
         /// <param name="amount">Lượng dầu cần trừ.</param>
         /// <param name="reason">Lý do.</param>
         /// <returns>True nếu đủ dầu để trừ.</returns>
-        public bool SubtractOil(double amount, OilChangeReason reason)
+        public bool SubtractOil(long amount, OilChangeReason reason)
         {
             if (amount <= 0) return true;
             if (playerData.oilHeld < amount)
@@ -381,7 +381,7 @@ namespace OilGame
         /// </summary>
         /// <param name="uniqueID">ID duy nhất của bucket.</param>
         /// <param name="newAmount">Lượng dầu mới.</param>
-        public void UpdateBucketOil(int uniqueID, float newAmount)
+        public void UpdateBucketOil(int uniqueID, long newAmount)
         {
             BuildingRuntimeData building = playerData.FindBuilding(uniqueID);
             if (building != null)

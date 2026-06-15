@@ -56,7 +56,6 @@ namespace OilGame
         {
             rb = GetComponent<Rigidbody>();
             if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
-            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             rb.useGravity = true;
 
             zoneManager = FindObjectOfType<ZoneManager>();
@@ -91,6 +90,7 @@ namespace OilGame
 
         private void FixedUpdate()
         {
+
             if (currentState == BotState.Wandering || currentState == BotState.MovingToBucket)
             {
                 float dist = DistanceXZ(transform.position, targetPosition);
@@ -118,6 +118,18 @@ namespace OilGame
 
         private void PickNewWanderTarget()
         {
+            // 30% đi đến điểm chung
+            if (Random.value < 0.1f && TeleportManager.Instance != null)
+            {
+                Vector3? point = TeleportManager.Instance.GetRandomPoint();
+                if (point != null)
+                {
+                    targetPosition = point.Value;
+                    return;
+                }
+            }
+
+            // 70% đi trong Zone
             if (zoneMin == zoneMax) return;
             float x = Random.Range(zoneMin.x + zoneMargin, zoneMax.x - zoneMargin);
             float z = Random.Range(zoneMin.z + zoneMargin, zoneMax.z - zoneMargin);

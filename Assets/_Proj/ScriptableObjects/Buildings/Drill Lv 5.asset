@@ -16,9 +16,9 @@ MonoBehaviour:
   buildingName: Drill Lv5
   buildingType: 0
   level: 5
-  price: 25000
-  productionRate: 50
+  price: 12000
+  productionRate: 8
   capacity: 0
-  prefab: {fileID: 7806736974854423485, guid: 62be7c9981f61b14dac78ff689a49078, type: 3}
-  icon: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  prefab: {fileID: 1896670287418448366, guid: 9afcafe490d3ab24e832b292cc219ace, type: 3}
+  icon: {fileID: 21300000, guid: 7298ef781ff4ee94884df1118c9f06c1, type: 3}
   description: 

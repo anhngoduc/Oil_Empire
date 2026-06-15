@@ -33,7 +33,7 @@ namespace OilGame
         private bool isPaused;
 
         /// <summary>Tổng tốc độ sản xuất hiện tại (đã áp hệ số).</summary>
-        private float totalProductionRate;
+        private long totalProductionRate;
 
         /// <summary>Coroutine đang chạy vòng lặp sản xuất.</summary>
         private IEnumerator productionCoroutine;
@@ -49,7 +49,7 @@ namespace OilGame
         public bool IsProductionPaused => isPaused;
 
         /// <summary>Tổng tốc độ sản xuất hiện tại (đã áp hệ số).</summary>
-        public float TotalProductionRate => totalProductionRate;
+        public long TotalProductionRate => totalProductionRate;
 
         #endregion
 
@@ -154,7 +154,7 @@ namespace OilGame
 
             // 2. Tính tổng sản lượng (có áp hệ số mảnh)
             float totalProducedThisTick = 0f;
-            totalProductionRate = 0f;
+            totalProductionRate = 0;
 
             foreach (Building drill in drills)
             {
@@ -170,7 +170,7 @@ namespace OilGame
                 float drillProduction = baseRate * multiplier;
 
                 totalProducedThisTick += drillProduction;
-                totalProductionRate += drillProduction;
+                totalProductionRate += (long)drillProduction;
             }
 
             // 3. Lấy thông tin bucket để báo cáo
@@ -189,7 +189,7 @@ namespace OilGame
             // 4. Gửi dầu vào BucketSystem
             if (totalProducedThisTick > 0f)
             {
-                bucketService.FillOil(totalProducedThisTick);
+                bucketService.FillOil((long)totalProducedThisTick);
             }
 
             // 5. Phát sự kiện cập nhật UI

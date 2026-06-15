@@ -70,9 +70,9 @@ namespace OilGame
         /// Được gọi bởi ProductionManager mỗi tick sản xuất.
         /// </summary>
         /// <param name="amount">Tổng lượng dầu cần phân phối.</param>
-        public void FillOil(float amount)
+        public void FillOil(long amount)
         {
-            if (amount <= 0f) return;
+            if (amount <= 0) return;
             if (buildingService == null) return;
 
             // Lấy tất cả Bucket của Player
@@ -117,12 +117,12 @@ namespace OilGame
 
                 // Đổ dầu vào bucket
                 float newOil = currentOil + oilToFill;
-                bucket.SetCurrentOil(newOil);
+                bucket.SetCurrentOil((long)newOil);
 
                 // Cập nhật PlayerData
                 if (playerDataService != null)
                 {
-                    playerDataService.UpdateBucketOil(bucket.UniqueID, newOil);
+                    playerDataService.UpdateBucketOil(bucket.UniqueID, (long)newOil);
                 }
 
                 // Giảm lượng dầu còn lại
@@ -177,25 +177,25 @@ namespace OilGame
         /// </summary>
         /// <param name="bucketUniqueID">ID duy nhất của bucket.</param>
         /// <returns>Lượng dầu thu được (0 nếu thất bại).</returns>
-        public float CollectOil(int bucketUniqueID)
+        public long CollectOil(int bucketUniqueID)
         {
             if (buildingService == null || playerDataService == null)
             {
                 Debug.LogError("[BucketSystem] Service chưa sẵn sàng!");
-                return 0f;
+                return 0;
             }
 
             // Tìm bucket
             Building bucket = buildingService.GetBuildingByID(bucketUniqueID);
             if (bucket == null)
             {
-                return 0f;
+                return 0;
             }
 
             // Kiểm tra có phải bucket không
             if (bucket.Type != BuildingType.Bucket)
             {
-                return 0f;
+                return 0;
             }
 
             // Lấy lượng dầu hiện tại
@@ -203,24 +203,24 @@ namespace OilGame
 
             if (collectedAmount <= 0f)
             {
-                return 0f;
+                return 0;
             }
 
             // Reset bucket về 0
-            bucket.SetCurrentOil(0f);
+            bucket.SetCurrentOil((long)0f);
 
             // Cập nhật PlayerData
-            playerDataService.UpdateBucketOil(bucketUniqueID, 0f);
+            playerDataService.UpdateBucketOil(bucketUniqueID, 0);
 
             // Thêm dầu vào kho người chơi
-            playerDataService.AddOil(collectedAmount, OilChangeReason.Collect);
+            playerDataService.AddOil((long)collectedAmount, OilChangeReason.Collect);
 
             // Phát sự kiện
             EventBus.Publish(new OnBucketEmptied(bucketUniqueID, collectedAmount));
             EventBus.Publish(new OnBucketUpdated(bucketUniqueID, 0f, bucket.GetCapacity(), BucketState.Empty));
             EventBus.Publish(new OnOilCollected(collectedAmount, (float)playerDataService.OilHeld));
 
-            return collectedAmount;
+            return (long)collectedAmount;
         }
 
         #endregion
@@ -247,12 +247,12 @@ namespace OilGame
         /// </summary>
         /// <param name="bucketUniqueID">ID của bucket.</param>
         /// <returns>Lượng dầu (0 nếu không tìm thấy).</returns>
-        public float GetBucketCurrentOil(int bucketUniqueID)
+        public long GetBucketCurrentOil(int bucketUniqueID)
         {
-            if (buildingService == null) return 0f;
+            if (buildingService == null) return 0;
 
             Building bucket = buildingService.GetBuildingByID(bucketUniqueID);
-            if (bucket == null) return 0f;
+            if (bucket == null) return 0;
 
             return bucket.GetCurrentOil();
         }

@@ -13,8 +13,8 @@ namespace OilGame
         public string saveFileName = "oilgame_save.dat";
 
         [Header("=== Market ===")]
-        public float minOilPrice = 5f;
-        public float maxOilPrice = 20f;
+        public long minOilPrice = 5;
+        public long maxOilPrice = 20;
         public float priceUpdateInterval = 30f;
 
         [Header("=== Grid & Camera ===")]

@@ -16,9 +16,9 @@ MonoBehaviour:
   buildingName: Bucket Lv3
   buildingType: 1
   level: 3
-  price: 1500
+  price: 6250
   productionRate: 0
   capacity: 2000
-  prefab: {fileID: 68957727017094741, guid: 11d12e0bf4d1e37478e9b275496d79bf, type: 3}
-  icon: {fileID: 21300000, guid: b8467ea5fbaf9ba42908de6411bd443d, type: 3}
+  prefab: {fileID: 5078716070049581082, guid: b8f9e1cd720cebe44ae2636f21bdab3e, type: 3}
+  icon: {fileID: 21300000, guid: 35f251549cf36834d9983b98c6631dec, type: 3}
   description: 

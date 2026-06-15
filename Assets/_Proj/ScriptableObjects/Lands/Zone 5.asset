@@ -17,50 +17,65 @@ MonoBehaviour:
   cellsPerPlotX: 3
   cellsPerPlotZ: 4
   columns: 3
-  rows: 3
+  rows: 4
   plots:
   - plotID: 1
     plotName: 
     oilMultiplier: 1
-    unlockCost: 1000
+    unlockCost: 5000
     plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
   - plotID: 2
     plotName: 
     oilMultiplier: 1
-    unlockCost: 1000
+    unlockCost: 0
     plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
   - plotID: 3
     plotName: 
     oilMultiplier: 1
-    unlockCost: 1000
+    unlockCost: 20000
     plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
   - plotID: 4
     plotName: 
     oilMultiplier: 1
-    unlockCost: 1000
-    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+    unlockCost: 150000
+    plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
   - plotID: 5
     plotName: 
     oilMultiplier: 1
-    unlockCost: 1000
-    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+    unlockCost: 50000
+    plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
   - plotID: 6
     plotName: 
     oilMultiplier: 1
-    unlockCost: 1000
-    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+    unlockCost: 500000
+    plotTexture: {fileID: 2800000, guid: 4a5e8cd471e1fb14aa09dbdc15ac8a8c, type: 3}
   - plotID: 7
     plotName: 
-    oilMultiplier: 1
-    unlockCost: 1000
-    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}
+    oilMultiplier: 2
+    unlockCost: 2500000
+    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
   - plotID: 8
     plotName: 
-    oilMultiplier: 1
-    unlockCost: 1000
-    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}
+    oilMultiplier: 2
+    unlockCost: 100000000
+    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
   - plotID: 9
     plotName: 
-    oilMultiplier: 1
-    unlockCost: 1000
+    oilMultiplier: 2
+    unlockCost: 500000000
+    plotTexture: {fileID: 2800000, guid: d3c679bf4d06a9545bd402d4e009a3c1, type: 3}
+  - plotID: 10
+    plotName: 
+    oilMultiplier: 3
+    unlockCost: 100000000000
+    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}
+  - plotID: 11
+    plotName: 
+    oilMultiplier: 5
+    unlockCost: 99000000000000
+    plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}
+  - plotID: 12
+    plotName: 
+    oilMultiplier: 3
+    unlockCost: 1000000000000
     plotTexture: {fileID: 2800000, guid: 037ef83978eee63499ce96491a7ed644, type: 3}

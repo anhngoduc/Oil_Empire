@@ -11,9 +11,9 @@ namespace OilGame
         public string botName;
         public List<int> unlockedPlotIDs;
         public List<BotBuildingInfo> buildings;
-        public double money;
-        public float totalOilInBuckets;
-        public float totalProductionRate;
+        public long money;
+        public long totalOilInBuckets;
+        public long totalProductionRate;
         public float totalBucketCapacity;
         public BotMovement botMovement;
 
@@ -25,14 +25,14 @@ namespace OilGame
             unlockedPlotIDs = new List<int>();
             buildings = new List<BotBuildingInfo>();
             money = 0;
-            totalOilInBuckets = 0f;
-            totalProductionRate = 0f;
+            totalOilInBuckets = 0;
+            totalProductionRate = 0;
             totalBucketCapacity = 0f;
         }
 
         public void RecalculateStats(BuildingDatabase database)
         {
-            totalProductionRate = 0f;
+            totalProductionRate = 0;
             totalBucketCapacity = 0f;
             foreach (var building in buildings)
             {
@@ -53,6 +53,6 @@ namespace OilGame
         public int plotID;
         public int gridX;
         public int gridZ;
-        public float currentOil;
+        public long currentOil;
     }
 }

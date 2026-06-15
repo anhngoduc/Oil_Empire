@@ -45,6 +45,8 @@ namespace OilGame
         [Header("=== Spawn công trình Bot ===")]
         [SerializeField] private Transform botBuildingsParent;
 
+        [SerializeField] private ZoneManager zoneManager;
+
         // === Dữ liệu runtime ===
 
         /// <summary>
@@ -230,10 +232,10 @@ namespace OilGame
                         BuildingData data = buildingDatabase.GetByID(buildingInfo.buildingDataID);
                         if (data == null) return;
 
-                        float oil = buildingInfo.currentOil;
-                        buildingInfo.currentOil = 0f; // ✅ reset dầu
+                        long oil = buildingInfo.currentOil;
+                        buildingInfo.currentOil = 0; // ✅ reset dầu
 
-                        float price = marketService?.CurrentOilPrice ?? 0f;
+                        long price = marketService?.CurrentOilPrice ?? 0;
                         capturedBot.money += oil * price;
 
                         UpdateBotBuildingVisual(capturedBot, buildingInfo);
@@ -289,7 +291,7 @@ namespace OilGame
                         plotID = pos.plotID,
                         gridX = pos.gridX,
                         gridZ = pos.gridZ,
-                        currentOil = 0f
+                        currentOil = 0
                     });
                 }
             }
@@ -308,7 +310,7 @@ namespace OilGame
                         plotID = pos.plotID,
                         gridX = pos.gridX,
                         gridZ = pos.gridZ,
-                        currentOil = 0f
+                        currentOil = 0
                     });
                 }
             }
@@ -436,13 +438,13 @@ namespace OilGame
                     BuildingData data = buildingDatabase.GetByID(building.buildingDataID);
                     if (data == null || data.buildingType != BuildingType.Bucket) continue;
 
-                    float capacity = data.capacity;
-                    float currentOil = building.currentOil;
+                    long capacity = data.capacity;
+                    long currentOil = building.currentOil;
 
                     if (currentOil >= capacity) continue;
 
-                    float spaceAvailable = capacity - currentOil;
-                    float oilToFill = Mathf.Min(spaceAvailable, remainingOil);
+                    long spaceAvailable = capacity - currentOil;
+                    long oilToFill = (long)Mathf.Min(spaceAvailable, remainingOil);
 
                     building.currentOil += oilToFill;
 
@@ -473,7 +475,7 @@ namespace OilGame
                 }
 
                 // Cập nhật tổng dầu trong bucket
-                bot.totalOilInBuckets = 0f;
+                bot.totalOilInBuckets = 0;
                 foreach (var building in bot.buildings)
                 {
                     BuildingData data = buildingDatabase.GetByID(building.buildingDataID);
@@ -599,13 +601,13 @@ namespace OilGame
                 plotID = pos.plotID,
                 gridX = pos.gridX,
                 gridZ = pos.gridZ,
-                currentOil = 0f
+                currentOil = 0
             });
 
             bot.RecalculateStats(buildingDatabase);
 
             if (verboseLogging)
-                Debug.Log($"[BotSimulationManager] Bot {bot.botName}: Mua {chosenData.buildingName} giá ${chosenData.price}. Tiền còn: ${bot.money:F2}.");
+                Debug.Log($"[BotSimulationManager] Bot {bot.botName}: Mua {chosenData.buildingName} giá ${chosenData.price}. Tiền còn: ${bot.money}.");
         }
 
         #endregion
@@ -722,7 +724,10 @@ namespace OilGame
 
                 Vector3 worldPos = gridService.GridToWorld(bot.zoneID, buildingInfo.plotID, buildingInfo.gridX, buildingInfo.gridZ);
 
-                GameObject buildingGO = Instantiate(data.prefab, worldPos, Quaternion.identity, botBuildingsParent);
+                Transform zoneT = zoneManager.GetZoneTransform(bot.zoneID);
+                Quaternion rot = zoneT != null ? zoneT.rotation : Quaternion.identity;
+                GameObject buildingGO = Instantiate(data.prefab, worldPos, rot, botBuildingsParent);
+
                 buildingGO.name = $"B{bot.botID}_{buildingInfo.plotID}_{buildingInfo.gridX}_{buildingInfo.gridZ}";
 
                 Building building = buildingGO.GetComponent<Building>();

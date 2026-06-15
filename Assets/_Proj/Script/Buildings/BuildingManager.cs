@@ -24,7 +24,7 @@ namespace OilGame
 
         [Tooltip("Transform cha chứa tất cả công trình đã đặt (để tổ chức hierarchy).")]
         [SerializeField] private Transform buildingsParent;
-
+        [SerializeField] private ZoneManager zoneManager;
         // === Dữ liệu runtime ===
 
         /// <summary>
@@ -202,7 +202,10 @@ namespace OilGame
             Vector3 worldPos = gridService.GridToWorld(zoneID, plotID, gridX, gridZ);
 
             // 4. Spawn công trình
-            GameObject buildingGO = Instantiate(data.prefab, worldPos, Quaternion.identity, buildingsParent);
+            Transform zoneT = zoneManager.GetZoneTransform(zoneID);
+            Quaternion rot = zoneT != null ? zoneT.rotation : Quaternion.identity;
+            GameObject buildingGO = Instantiate(data.prefab, worldPos, rot, buildingsParent);
+
             Building building = buildingGO.GetComponent<Building>();
 
             if (building == null)
@@ -358,7 +361,10 @@ namespace OilGame
                 Vector3 worldPos = gridService.GridToWorld(saveData.zoneID, saveData.plotID, saveData.gridX, saveData.gridZ);
 
                 // Spawn công trình
-                GameObject buildingGO = Instantiate(data.prefab, worldPos, Quaternion.identity, buildingsParent);
+                Transform zoneT = zoneManager.GetZoneTransform(saveData.zoneID);
+                Quaternion rot = zoneT != null ? zoneT.rotation : Quaternion.identity;
+                GameObject buildingGO = Instantiate(data.prefab, worldPos, rot, buildingsParent);
+
                 Building building = buildingGO.GetComponent<Building>();
 
                 if (building == null)

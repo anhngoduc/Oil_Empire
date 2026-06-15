@@ -48,7 +48,7 @@ namespace OilGame
             }
             else
             {
-                building.SetCurrentOil(0f);
+                building.SetCurrentOil((long)0f);
             }
         }
 

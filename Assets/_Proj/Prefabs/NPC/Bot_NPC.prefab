@@ -116,7 +116,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &8999825878649462282
 CapsuleCollider:
@@ -191,9 +191,13 @@ MonoBehaviour:
   moveSpeed: 2
   turnSpeed: 5
   stoppingDistance: 0.2
+  jumpForce: 3
+  rayDistance: 1
+  rayHeight: 0.25
+  maxJump: 1
   minRestTime: 1
   maxRestTime: 3
-  botZoneID: -1
+  collectCooldown: 5
   anim: {fileID: 8467032392619611482}
 --- !u!1001 &2660049237866309835
 PrefabInstance:
